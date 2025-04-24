@@ -1,0 +1,43 @@
+# Core dependencies
+flask==2.0.1
+gunicorn==20.1.0
+Werkzeug==2.0.1
+Jinja2==3.0.1
+
+# Data processing
+numpy>=1.22.0
+pandas>=1.4.0
+scikit-learn>=1.0.0
+joblib>=1.1.0
+
+# Natural Language Processing
+nltk==3.6.2
+wordcloud==1.9.2
+spacy>=3.5.0
+textblob>=0.17.1
+gensim>=4.3.0
+lime>=0.2.0  # For explainable AI
+
+# Visualization
+matplotlib>=3.5.0
+plotly>=5.14.1
+seaborn>=0.12.0
+
+# Web-related
+flask-wtf==1.1.1
+flask-cors==4.0.0
+flask-caching>=2.0.0
+requests>=2.28.0  # For external API calls
+
+# Utilities
+python-dotenv==1.0.0
+tqdm==4.65.0
+bs4>=0.0.1  # Alias package for BeautifulSoup
+beautifulsoup4>=4.12.0  # For web scraping
+
+# Deep Learning - optional, comment out if causing issues
+# tensorflow>=2.9.0
+# tensorflow-io-gcs-filesystem>=0.31.0
+
+# Additional tools
+newspaper3k>=0.2.8  # For article extraction

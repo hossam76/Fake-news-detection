@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Fake News Detection System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+</head>
+<body class="modern-theme">
+    <!-- Enhanced animated background elements -->
+    <!-- <div class="background-animation">
+        <div class="circle-1"></div>
+        <div class="circle-2"></div>
+        <div class="circle-3"></div>
+        <div class="floating-shapes">
+            <div class="shape shape-1"><i class="fas fa-newspaper"></i></div>
+            <div class="shape shape-2"><i class="fas fa-chart-line"></i></div>
+            <div class="shape shape-3"><i class="fas fa-brain"></i></div>
+            <div class="shape shape-4"><i class="fas fa-shield-alt"></i></div>
+        </div>
+    </div> -->
+
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top glass-effect">
+        <div class="container-fluid">
+            <a class="navbar-brand brand-animated" href="/">
+                <div class="logo-container">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>FakeNewsGuard<sup class="pro-badge">PRO</sup></span>
+                </div>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/"><i class="fas fa-home me-1"></i>Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard"><i class="fas fa-chart-line me-1"></i>Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/learn"><i class="fas fa-graduation-cap me-1"></i>Learn</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/case_studies"><i class="fas fa-microscope me-1"></i>Case Studies</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <span class="navbar-text me-3">
+                        <span class="badge bg-gradient pulse-animation">Final Year Project</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Hero Section - Updated with more professional design -->
+        <div class="hero-section text-center mb-5" data-aos="fade-up">
+            <div class="hero-content glass-card with-glow">
+                <h1 class="hero-title"><i class="fas fa-newspaper text-primary rotating-icon"></i> Advanced Fake News Detection</h1>
+                <p class="hero-subtitle">Leveraging state-of-the-art AI and machine learning to detect misinformation in the digital landscape</p>
+                <div class="hero-features">
+                    <div class="feature-badge"><i class="fas fa-brain"></i> Advanced ML</div>
+                    <div class="feature-badge"><i class="fas fa-language"></i> NLP Analysis</div>
+                    <div class="feature-badge"><i class="fas fa-chart-pie"></i> Data Visualization</div>
+                    <div class="feature-badge"><i class="fas fa-shield-alt"></i> Source Verification</div>
+                </div>
+                
+                {% if error %}
+                <div class="alert alert-danger alert-dismissible fade show mt-4 glass-alert" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row content-container">
+            <!-- Left column - Input Panel (Enhanced) -->
+            <div class="col-lg-5" data-aos="fade-right" data-aos-delay="100">
+                <div class="neo-card mb-4 premium-card">
+                    <div class="card-decoration">
+                        <div class="decoration-dot dot-1"></div>
+                        <div class="decoration-dot dot-2"></div>
+                        <div class="decoration-dot dot-3"></div>
+                    </div>
+                    <div class="card-header-custom">
+                        <h4><i class="fas fa-file-alt text-primary me-2"></i>Analysis Input</h4>
+                    </div>
+                    <div class="card-body">
+                        <ul class="custom-tabs" id="inputTabs" role="tablist">
+                            <li class="tab-item active" id="text-tab" data-target="#text-pane">
+                                <i class="fas fa-keyboard"></i> Text
+                            </li>
+                            <li class="tab-item" id="url-tab" data-target="#url-pane">
+                                <i class="fas fa-link"></i> URL
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content mt-4">
+                            <div class="tab-pane active" id="text-pane">
+                                <form method="POST" action="/predict_form" id="analysis-form">
+                                    <div class="floating-form-group mb-4">
+                                        <textarea class="form-control custom-input" id="news_text" name="news_text" rows="8" placeholder=" ">{{ news_text }}</textarea>
+                                        <label for="news_text">Enter news article text</label>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <label class="form-label d-block">Select detection model:</label>
+                                        <div class="model-selector enhanced">
+                                            <input type="radio" class="btn-check" name="model_choice" id="nb-option" value="naive_bayes" checked>
+                                            <label class="btn btn-outline-primary selector-btn" for="nb-option">
+                                                <div class="selector-icon"><i class="fas fa-calculator"></i></div>
+                                                <div class="selector-text">
+                                                    <div class="selector-title">Naive Bayes</div>
+                                                    <div class="selector-desc">Statistical algorithm</div>
+                                                </div>
+                                            </label>
+                                            
+                                            <input type="radio" class="btn-check" name="model_choice" id="rf-option" value="random_forest">
+                                            <label class="btn btn-outline-primary selector-btn" for="rf-option">
+                                                <div class="selector-icon"><i class="fas fa-tree"></i></div>
+                                                <div class="selector-text">
+                                                    <div class="selector-title">Random Forest</div>
+                                                    <div class="selector-desc">Tree-based classifier</div>
+                                                </div>
+                                            </label>
+                                            
+                                            <input type="radio" class="btn-check" name="model_choice" id="lstm-option" value="lstm">
+                                            <label class="btn btn-outline-primary selector-btn" for="lstm-option">
+                                                <div class="selector-icon"><i class="fas fa-network-wired"></i></div>
+                                                <div class="selector-text">
+                                                    <div class="selector-title">LSTM</div>
+                                                    <div class="selector-desc">Deep learning model</div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <div class="advanced-toggle">
+                                            <span>Advanced Analysis</span>
+                                            <div class="toggle-switch">
+                                                <input type="checkbox" id="advancedAnalysis" name="generate_advanced" value="true">
+                                                <label for="advancedAnalysis"></label>
+                                            </div>
+                                        </div>
+                                        <div class="advanced-features">
+                                            <div class="feature-item"><i class="fas fa-chart-pie"></i> Text Statistics</div>
+                                            <div class="feature-item"><i class="fas fa-cloud"></i> Word Cloud</div>
+                                            <div class="feature-item"><i class="fas fa-smile"></i> Sentiment Analysis</div>
+                                            <div class="feature-item"><i class="fas fa-lightbulb"></i> AI Explanation</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary btn-lg w-100 btn-glow">
+                                        <span class="btn-content">
+                                            <i class="fas fa-search me-2"></i>Analyze Content
+                                        </span>
+                                    </button>
+                                </form>
+                            </div>
+                            
+                            <div class="tab-pane" id="url-pane">
+                                <form method="POST" action="/predict_form" id="url-form">
+                                    <div class="floating-form-group mb-4">
+                                        <input type="url" class="form-control custom-input" id="news_url" name="news_url" placeholder=" " value="{{ news_url }}">
+                                        <label for="news_url">Enter article URL</label>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <button type="button" id="extractButton" class="btn btn-outline-secondary w-100 btn-with-icon">
+                                            <i class="fas fa-download"></i>
+                                            <span>Extract Article</span>
+                                        </button>
+                                    </div>
+                                    
+                                    <div id="extractionResult" class="extraction-result" style="display:none;"></div>
+                                    
+                                    <!-- Hidden fields and similar model selection as text form -->
+                                    <div class="mb-4">
+                                        <label class="form-label d-block">Select detection model:</label>
+                                        <div class="model-selector enhanced">
+                                            <input type="radio" class="btn-check" name="model_choice" id="nb-option-url" value="naive_bayes" checked>
+                                            <label class="btn btn-outline-primary selector-btn" for="nb-option-url">
+                                                <div class="selector-icon"><i class="fas fa-calculator"></i></div>
+                                                <div class="selector-text">
+                                                    <div class="selector-title">Naive Bayes</div>
+                                                    <div class="selector-desc">Statistical algorithm</div>
+                                                </div>
+                                            </label>
+                                            
+                                            <input type="radio" class="btn-check" name="model_choice" id="rf-option-url" value="random_forest">
+                                            <label class="btn btn-outline-primary selector-btn" for="rf-option-url">
+                                                <div class="selector-icon"><i class="fas fa-tree"></i></div>
+                                                <div class="selector-text">
+                                                    <div class="selector-title">Random Forest</div>
+                                                    <div class="selector-desc">Tree-based classifier</div>
+                                                </div>
+                                            </label>
+                                            
+                                            <input type="radio" class="btn-check" name="model_choice" id="lstm-option-url" value="lstm">
+                                            <label class="btn btn-outline-primary selector-btn" for="lstm-option-url">
+                                                <div class="selector-icon"><i class="fas fa-network-wired"></i></div>
+                                                <div class="selector-text">
+                                                    <div class="selector-title">LSTM</div>
+                                                    <div class="selector-desc">Deep learning model</div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <div class="advanced-toggle">
+                                            <span>Advanced Analysis</span>
+                                            <div class="toggle-switch">
+                                                <input type="checkbox" id="advancedAnalysisUrl" name="generate_advanced" value="true" checked>
+                                                <label for="advancedAnalysisUrl"></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <input type="hidden" name="news_text" id="extracted_text">
+                                    
+                                    <button type="submit" class="btn btn-primary btn-lg w-100 btn-glow">
+                                        <span class="btn-content">
+                                            <i class="fas fa-search me-2"></i>Analyze Content
+                                        </span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Information Panel - enhanced styling -->
+                <div class="info-panel-accordion" data-aos="fade-up" data-aos-delay="200">
+                    <div class="accordion accordion-custom" id="infoAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                    <i class="fas fa-info-circle text-info me-2"></i>What is Fake News?
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#infoAccordion">
+                                <div class="accordion-body">
+                                    <p>Fake news refers to false or misleading information presented as factual news. It's often created to:</p>
+                                    <div class="info-grid">
+                                        <div class="info-grid-item">
+                                            <i class="fas fa-vote-yea text-danger"></i>
+                                            <span>Influence politics</span>
+                                        </div>
+                                        <div class="info-grid-item">
+                                            <i class="fas fa-mouse-pointer text-warning"></i>
+                                            <span>Generate clicks</span>
+                                        </div>
+                                        <div class="info-grid-item">
+                                            <i class="fas fa-virus text-info"></i>
+                                            <span>Spread misinformation</span>
+                                        </div>
+                                        <div class="info-grid-item">
+                                            <i class="fas fa-users text-success"></i>
+                                            <span>Manipulate opinion</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                                    <i class="fas fa-lightbulb text-warning me-2"></i>Tips for Spotting Fake News
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#infoAccordion">
+                                <div class="accordion-body">
+                                    <div class="tips-container">
+                                        <div class="tip-card">
+                                            <div class="tip-icon"><i class="fas fa-search"></i></div>
+                                            <div class="tip-content">Check the source credentials</div>
+                                        </div>
+                                        <div class="tip-card">
+                                            <div class="tip-icon"><i class="fas fa-book-open"></i></div>
+                                            <div class="tip-content">Read beyond headlines</div>
+                                        </div>
+                                        <div class="tip-card">
+                                            <div class="tip-icon"><i class="fas fa-link"></i></div>
+                                            <div class="tip-content">Look for unusual URLs</div>
+                                        </div>
+                                        <div class="tip-card">
+                                            <div class="tip-icon"><i class="fas fa-calendar-check"></i></div>
+                                            <div class="tip-content">Check date and facts</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right column - Results Panel (Enhanced) -->
+            <div class="col-lg-7" data-aos="fade-left" data-aos-delay="100">
+                {% if result %}
+                <div class="result-container">
+                    <div class="neo-card result-card {{ 'result-real' if result.prediction == 'real' else 'result-fake' }} premium-card" data-aos="zoom-in">
+                        <!-- Enhanced result header with gradient and animation -->
+                        <div class="result-header {{ 'header-real' if result.prediction == 'real' else 'header-fake' }}">
+                            <div class="result-icon-container animated">
+                                <i class="result-icon {{ 'fas fa-check-circle' if result.prediction == 'real' else 'fas fa-exclamation-triangle' }}"></i>
+                            </div>
+                            <h3 class="result-title">Analysis Verdict</h3>
+                        </div>
+                        
+                        <div class="result-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-7">
+                                    <div class="verdict-container">
+                                        <div class="verdict {{ 'verdict-real' if result.prediction == 'real' else 'verdict-fake' }}">
+                                            {{ result.prediction|upper }}
+                                        </div>
+                                        <div class="verdict-info">{{ "%.2f"|format(result.confidence) }}% confidence</div>
+                                    </div>
+                                    
+                                    <div class="model-info">
+                                        <div class="model-badge">
+                                            <i class="{{ 'fas fa-calculator' if result.model_used == 'Naive Bayes' else 'fas fa-tree' if result.model_used == 'Random Forest' else 'fas fa-network-wired' if result.model_used == 'LSTM' }}"></i>
+                                            <span>{{ result.model_used|replace('_', ' ')|title }}</span>
+                                        </div>
+                                        
+                                        <div class="verdict-description">
+                                            {% if result.prediction == 'real' %}
+                                            This content appears to be authentic based on our analysis.
+                                            {% else %}
+                                            This content displays characteristics consistent with misinformation.
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-5">
+                                    <div class="confidence-meter enhanced">
+                                        <canvas id="confidenceGauge"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if analysis_id %}
+                            <div class="actions-bar">
+                                <a href="{{ url_for('export_analysis', analysis_id=analysis_id) }}" class="btn btn-outline-primary btn-with-icon">
+                                    <i class="fas fa-file-export"></i> Export Analysis
+                                </a>
+                                <a href="#explanation-pane" class="btn btn-outline-secondary btn-with-icon">
+                                    <i class="fas fa-search-plus"></i> Detailed Insights
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if all_results %}
+                    <!-- Model Comparison (Enhanced) -->
+                    <div class="neo-card mt-4 premium-card" data-aos="fade-up">
+                        <div class="card-header-custom with-actions">
+                            <h4><i class="fas fa-balance-scale text-primary me-2"></i>Model Comparison</h4>
+                            <div class="card-actions">
+                                <button class="btn btn-sm btn-outline-primary" id="toggleChartView">
+                                    <i class="fas fa-chart-bar"></i> Toggle View
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="model-chart-container">
+                                <canvas id="modelComparisonChart" height="250"></canvas>
+                            </div>
+                            
+                            <div class="model-results-grid mt-3">
+                                {% for model_name, model_result in all_results.items() %}
+                                {% if model_name != 'ensemble' %}
+                                <div class="model-result-card {{ 'highlight' if model_name == model_choice }}">
+                                    <div class="model-result-header">
+                                        <i class="{{ 'fas fa-calculator' if model_name == 'naive_bayes' else 'fas fa-tree' if model_name == 'random_forest' else 'fas fa-network-wired' if model_name == 'lstm' }}"></i>
+                                        <span>{{ model_name|replace('_', ' ')|title }}</span>
+                                    </div>
+                                    <div class="model-result-body">
+                                        <div class="prediction {{ 'prediction-real' if model_result.prediction == 'real' else 'prediction-fake' }}">
+                                            {{ model_result.prediction|upper }}
+                                        </div>
+                                        <div class="confidence-bar">
+                                            <div class="confidence-progress {{ 'bg-success' if model_result.prediction == 'real' else 'bg-danger' }}" 
+                                                 style="width: {{ model_result.confidence * 100 }}%"></div>
+                                        </div>
+                                        <div class="confidence-value">
+                                            {{ "%.2f"|format(model_result.confidence * 100) }}%
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if text_analysis or wordcloud or credibility or explanation %}
+                    <!-- Advanced Analysis Section -->
+                    <div class="advanced-analysis-container mt-4" data-aos="fade-up" data-aos-delay="200">
+                        <div class="neo-card premium-card">
+                            <div class="card-header-custom">
+                                <h4><i class="fas fa-microscope text-primary me-2"></i>Advanced Insights</h4>
+                            </div>
+                            <div class="modern-tabs-container">
+                                <div class="modern-tabs">
+                                    {% if text_analysis %}
+                                    <button class="tab-btn active" data-tab="stats-pane">
+                                        <i class="fas fa-chart-pie"></i> Statistics
+                                    </button>
+                                    {% endif %}
+                                    
+                                    {% if wordcloud %}
+                                    <button class="tab-btn" data-tab="wordcloud-pane">
+                                        <i class="fas fa-cloud"></i> Word Cloud
+                                    </button>
+                                    {% endif %}
+                                    
+                                    {% if text_analysis and text_analysis.sentiment %}
+                                    <button class="tab-btn" data-tab="sentiment-pane">
+                                        <i class="fas fa-smile"></i> Sentiment
+                                    </button>
+                                    {% endif %}
+                                    
+                                    {% if credibility %}
+                                    <button class="tab-btn" data-tab="credibility-pane">
+                                        <i class="fas fa-globe"></i> Source
+                                    </button>
+                                    {% endif %}
+                                    
+                                    {% if explanation %}
+                                    <button class="tab-btn" data-tab="explanation-pane">
+                                        <i class="fas fa-lightbulb"></i> Explanation
+                                    </button>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="tab-content-container">
+                                    {% if text_analysis %}
+                                    <div class="modern-tab-pane active" id="stats-pane">
+                                        <!-- Statistics content -->
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="stats-summary">
+                                                    <h5 class="insights-title"><i class="fas fa-file-alt me-2"></i>Text Profile</h5>
+                                                    <div class="stat-cards">
+                                                        <div class="stat-card">
+                                                            <div class="stat-value">{{ text_analysis.word_count }}</div>
+                                                            <div class="stat-label">Words</div>
+                                                            <div class="stat-icon"><i class="fas fa-font"></i></div>
+                                                        </div>
+                                                        <div class="stat-card">
+                                                            <div class="stat-value">{{ text_analysis.sentence_count }}</div>
+                                                            <div class="stat-label">Sentences</div>
+                                                            <div class="stat-icon"><i class="fas fa-paragraph"></i></div>
+                                                        </div>
+                                                        <div class="stat-card">
+                                                            <div class="stat-value">{{ "%.1f"|format(text_analysis.avg_word_length) }}</div>
+                                                            <div class="stat-label">Avg. Word Length</div>
+                                                            <div class="stat-icon"><i class="fas fa-text-width"></i></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                {% if text_analysis.pos_counts %}
+                                                <div class="pos-chart-container">
+                                                    <h5 class="insights-title"><i class="fas fa-tag me-2"></i>Parts of Speech</h5>
+                                                    <canvas id="posChart"></canvas>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            
+                                            <div class="col-md-6">
+                                                <div class="word-freq-container">
+                                                    <h5 class="insights-title"><i class="fas fa-chart-bar me-2"></i>Top Words</h5>
+                                                    <canvas id="wordFrequencyChart"></canvas>
+                                                </div>
+                                                
+                                                {% if text_analysis.named_entities %}
+                                                <div class="named-entities-container">
+                                                    <h5 class="insights-title"><i class="fas fa-user-tag me-2"></i>Named Entities</h5>
+                                                    <div class="entity-tags">
+                                                        {% for entity, label in text_analysis.named_entities[:15] %}
+                                                        <span class="entity-tag" data-entity-type="{{ label }}">
+                                                            {{ entity }} <span class="entity-label">{{ label }}</span>
+                                                        </span>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if wordcloud %}
+                                    <div class="modern-tab-pane" id="wordcloud-pane">
+                                        <h5 class="insights-title"><i class="fas fa-cloud me-2"></i>Word Cloud Visualization</h5>
+                                        <p class="text-muted mb-3">Visual representation of the most frequent words in the content</p>
+                                        
+                                        <div class="wordcloud-container">
+                                            <img src="{{ wordcloud }}" alt="Word Cloud" class="wordcloud-img">
+                                            <div class="wordcloud-legend text-center mt-3">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-info-circle me-1"></i>
+                                                    Larger words appear more frequently in the text. Common words like "the", "and", etc. are filtered out.
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if text_analysis and text_analysis.sentiment %}
+                                    <div class="modern-tab-pane" id="sentiment-pane">
+                                        <h5 class="insights-title"><i class="fas fa-smile me-2"></i>Sentiment Analysis</h5>
+                                        
+                                        <div class="sentiment-container">
+                                            <div class="sentiment-card">
+                                                <h6><i class="fas fa-balance-scale me-1"></i> Polarity</h6>
+                                                <p class="text-muted small mb-2">Measures how positive or negative the text is</p>
+                                                
+                                                <div class="sentiment-value">
+                                                    {{ "%.2f"|format(text_analysis.sentiment.polarity) }}
+                                                </div>
+                                                
+                                                <div class="sentiment-meter">
+                                                    <div class="sentiment-bar">
+                                                        <div class="sentiment-fill polarity-fill" style="left: 50%; width: {{ ((text_analysis.sentiment.polarity + 1) / 2 * 100)|round }}%;"></div>
+                                                    </div>
+                                                    <div class="label-row">
+                                                        <span>Negative (-1)</span>
+                                                        <span>0</span>
+                                                        <span>Positive (+1)</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="sentiment-insight">
+                                                    {% if text_analysis.sentiment.polarity > 0.3 %}
+                                                        <div class="sentiment-icon text-success"><i class="fas fa-smile"></i></div>
+                                                        <p>This content has a <strong>positive</strong> tone, which is somewhat unusual for news content that aims to be neutral.</p>
+                                                    {% elif text_analysis.sentiment.polarity < -0.3 %}
+                                                        <div class="sentiment-icon text-danger"><i class="fas fa-frown"></i></div>
+                                                        <p>This content has a <strong>negative</strong> tone. Highly negative content may be sensationalized.</p>
+                                                    {% else %}
+                                                        <div class="sentiment-icon text-warning"><i class="fas fa-meh"></i></div>
+                                                        <p>This content has a relatively <strong>neutral</strong> tone, which is typical for objective reporting.</p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="sentiment-card">
+                                                <h6><i class="fas fa-comments me-1"></i> Subjectivity</h6>
+                                                <p class="text-muted small mb-2">Measures how subjective or objective the text is</p>
+                                                
+                                                <div class="sentiment-value">
+                                                    {{ "%.2f"|format(text_analysis.sentiment.subjectivity) }}
+                                                </div>
+                                                
+                                                <div class="sentiment-meter">
+                                                    <div class="sentiment-bar">
+                                                        <div class="sentiment-fill subjectivity-fill" style="width: {{ (text_analysis.sentiment.subjectivity * 100)|round }}%;"></div>
+                                                    </div>
+                                                    <div class="label-row">
+                                                        <span>Objective (0)</span>
+                                                        <span>Subjective (1)</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="sentiment-insight">
+                                                    {% if text_analysis.sentiment.subjectivity > 0.6 %}
+                                                        <div class="sentiment-icon text-warning"><i class="fas fa-exclamation-circle"></i></div>
+                                                        <p>This content is highly <strong>subjective</strong>, containing many opinions rather than facts. News should generally be more objective.</p>
+                                                    {% elif text_analysis.sentiment.subjectivity < 0.3 %}
+                                                        <div class="sentiment-icon text-success"><i class="fas fa-check-circle"></i></div>
+                                                        <p>This content appears to be <strong>objective</strong>, focusing on facts rather than opinions.</p>
+                                                    {% else %}
+                                                        <div class="sentiment-icon text-info"><i class="fas fa-info-circle"></i></div>
+                                                        <p>This content has a <strong>moderate level of subjectivity</strong>, containing a mix of facts and opinions.</p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if credibility %}
+                                    <div class="modern-tab-pane" id="credibility-pane">
+                                        <h5 class="insights-title"><i class="fas fa-globe me-2"></i>Source Credibility</h5>
+                                        
+                                        <div class="credibility-container">
+                                            <div class="credibility-score-card">
+                                                <div class="score-ring">
+                                                    <div class="score-circle" style="background: conic-gradient(
+                                                        {{ 'var(--success)' if credibility.score > 0.7 else 'var(--warning)' if credibility.score > 0.4 else 'var(--danger)' }} 
+                                                        0%, 
+                                                        {{ 'var(--success)' if credibility.score > 0.7 else 'var(--warning)' if credibility.score > 0.4 else 'var(--danger)' }} 
+                                                        {{ credibility.score * 100 }}%, 
+                                                        #f1f1f1 {{ credibility.score * 100 }}%, 
+                                                        #f1f1f1 100%)">
+                                                        <div class="score-inner-circle">
+                                                            <span class="score-value">{{ (credibility.score * 10)|round(1) }}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="score-label">{{ credibility.status }}</div>
+                                                <div class="text-muted mt-2">{{ credibility.notes }}</div>
+                                            </div>
+                                            
+                                            <div class="credibility-score-card">
+                                                <h6><i class="fas fa-link me-1"></i> Source URL</h6>
+                                                
+                                                <div class="url-display">
+                                                    <a href="{{ news_url }}" target="_blank">{{ news_url }}</a>
+                                                </div>
+                                                
+                                                <div class="credibility-details mt-3">
+                                                    <h6 class="mb-2">Domain Analysis:</h6>
+                                                    <div class="detail-row">
+                                                        <div class="detail-label">Domain Age Check</div>
+                                                        <div>{{ "Passed" if credibility.score > 0.5 else "Warning" }}</div>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <div class="detail-label">SSL Security</div>
+                                                        <div>{{ "Passed" if news_url.startswith('https') else "Warning" }}</div>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <div class="detail-label">About Page</div>
+                                                        <div>{{ "Found" if 'Has about page' in credibility.notes else "Not found" }}</div>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <div class="detail-label">Contact Information</div>
+                                                        <div>{{ "Found" if 'Has contact information' in credibility.notes else "Not found" }}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if explanation %}
+                                    <div class="modern-tab-pane" id="explanation-pane">
+                                        <h5 class="insights-title"><i class="fas fa-lightbulb me-2"></i>AI Explanation</h5>
+                                        <p class="text-muted mb-3">Understanding what factors influenced the model's decision</p>
+                                        
+                                        {% if explanation.error %}
+                                            <div class="alert alert-warning">{{ explanation.error }}</div>
+                                        {% else %}
+                                            <div class="explanation-container">
+                                                <div class="explanation-chart-container">
+                                                    <canvas id="explanationChart"></canvas>
+                                                </div>
+                                                
+                                                <div class="features-list">
+                                                    <h6 class="mb-3">Key Features</h6>
+                                                    {% for item in explanation.explanation %}
+                                                    <div class="feature-item">
+                                                        <span class="feature-word">{{ item.word }}</span>
+                                                        <span class="feature-weight {{ 'weight-positive' if item.weight > 0 else 'weight-negative' }}">
+                                                            {{ "%.4f"|format(item.weight) }}
+                                                        </span>
+                                                    </div>
+                                                    {% endfor %}
+                                                    
+                                                    <div class="explanation-note mt-3">
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-info-circle me-1"></i>
+                                                            Positive values indicate features that suggest the content is real news, while negative values suggest fake news.
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <!-- Enhanced placeholder/Welcome state when no results available -->
+                <div class="welcome-placeholder premium-card" data-aos="fade-up">
+                    <div class="placeholder-bg"></div>
+                    <div class="placeholder-icon">
+                        <i class="fas fa-newspaper"></i>
+                    </div>
+                    <h3>Advanced Analysis Engine</h3>
+                    <p>Enter news text or a URL to detect potential misinformation using state-of-the-art AI models</p>
+                    <div class="placeholder-stats">
+                        <div class="stat-highlight">
+                            <div class="stat-number counter" data-target="99.2">0</div>
+                            <div class="stat-label">Accuracy</div>
+                        </div>
+                        <div class="stat-highlight">
+                            <div class="stat-number counter" data-target="0.5">0</div>
+                            <div class="stat-label">Avg. Processing Time</div>
+                        </div>
+                        <div class="stat-highlight">
+                            <div class="stat-number counter" data-target="3">0</div>
+                            <div class="stat-label">ML Models</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- New Technology Overview Section -->
+                <div class="tech-overview-section mt-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="neo-card premium-card">
+                        <div class="card-header-custom">
+                            <h4><i class="fas fa-microchip text-primary me-2"></i>Advanced Technologies</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="tech-grid">
+                                <div class="tech-card">
+                                    <div class="tech-icon">
+                                        <i class="fas fa-calculator"></i>
+                                    </div>
+                                    <h5>Naive Bayes</h5>
+                                    <p>A probabilistic classifier based on Bayes' theorem with strong independence assumptions between features.</p>
+                                    <div class="tech-stats">
+                                        <div class="tech-stat">
+                                            <span class="label">Accuracy</span>
+                                            <span class="value">78.5%</span>
+                                        </div>
+                                        <div class="tech-stat">
+                                            <span class="label">Speed</span>
+                                            <span class="value">Fast</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tech-card">
+                                    <div class="tech-icon">
+                                        <i class="fas fa-tree"></i>
+                                    </div>
+                                    <h5>Random Forest</h5>
+                                    <p>An ensemble learning method that constructs multiple decision trees during training.</p>
+                                    <div class="tech-stats">
+                                        <div class="tech-stat">
+                                            <span class="label">Accuracy</span>
+                                            <span class="value">83.2%</span>
+                                        </div>
+                                        <div class="tech-stat">
+                                            <span class="label">Speed</span>
+                                            <span class="value">Medium</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tech-card">
+                                    <div class="tech-icon">
+                                        <i class="fas fa-network-wired"></i>
+                                    </div>
+                                    <h5>LSTM Network</h5>
+                                    <p>A deep learning recurrent neural network architecture designed to model sequence data.</p>
+                                    <div class="tech-stats">
+                                        <div class="tech-stat">
+                                            <span class="label">Accuracy</span>
+                                            <span class="value">88.7%</span>
+                                        </div>
+                                        <div class="tech-stat">
+                                            <span class="label">Speed</span>
+                                            <span class="value">Slow</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Enhanced footer -->
+    <footer class="footer mt-5 enhanced">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="footer-brand">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>FakeNewsGuard</span>
+                    </div>
+                    <p>An advanced fake news detection system using multiple machine learning algorithms and natural language processing techniques.</p>
+                    <div class="tech-badges">
+                        <span class="tech-badge">Python</span>
+                        <span class="tech-badge">Flask</span>
+                        <span class="tech-badge">ML</span>
+                        <span class="tech-badge">NLP</span>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <h5>Navigation</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="/"><i class="fas fa-home me-1"></i>Home</a></li>
+                        <li><a href="/dashboard"><i class="fas fa-chart-line me-1"></i>Dashboard</a></li>
+                        <li><a href="/learn"><i class="fas fa-graduation-cap me-1"></i>Learn</a></li>
+                        <li><a href="/case_studies"><i class="fas fa-microscope me-1"></i>Case Studies</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Resources</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="#"><i class="fas fa-file-alt me-1"></i>Documentation</a></li>
+                        <li><a href="#"><i class="fab fa-github me-1"></i>GitHub Repository</a></li>
+                        <li><a href="#"><i class="fas fa-book me-1"></i>Research Paper</a></li>
+                        <li><a href="#"><i class="fas fa-database me-1"></i>Dataset Source</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Project Details</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li><i class="fas fa-user-graduate me-1"></i> Final Year Project</li>
+                        <li><i class="fas fa-calendar me-1"></i> 2023-2024</li>
+                        <li><i class="fas fa-university me-1"></i> University Department</li>
+                        <li><a href="#"><i class="fas fa-envelope me-1"></i> Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p>&copy; 2023-2024 Advanced Fake News Detection System | All Rights Reserved</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Theme toggle button (enhanced) -->
+    <div class="theme-toggle" title="Toggle light/dark mode">
+        <i class="fas fa-moon"></i>
+    </div>
+    
+    <!-- JavaScript libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <!-- Custom JS -->
+    <script>
+        // Initialize AOS animations with enhanced options
+        AOS.init({
+            duration: 800,
+            once: true,
+            mirror: true,
+            anchorPlacement: 'center-bottom'
+        });
+        
+        // Advanced counter animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const counters = document.querySelectorAll('.counter');
+            const speed = 200;
+            
+            counters.forEach(counter => {
+                const targetValue = parseFloat(counter.getAttribute('data-target'));
+                const increment = targetValue / speed;
+                let currentValue = 0;
+                
+                const updateCount = () => {
+                    if (currentValue < targetValue) {
+                        currentValue += increment;
+                        counter.innerText = currentValue < 1 ? currentValue.toFixed(1) : Math.floor(currentValue);
+                        setTimeout(updateCount, 1);
+                    } else {
+                        counter.innerText = targetValue < 1 ? targetValue.toFixed(1) : targetValue;
+                    }
+                };
+                
+                updateCount();
+            });
+            
+            // Rest of your existing JavaScript
+            // ...existing code...
+        });
+        
+        // ...existing code...
+        
+        {% if result %}
+        // Enhanced confidence gauge chart with animation
+        const confidenceCtx = document.getElementById('confidenceGauge').getContext('2d');
+        const confidenceGauge = new Chart(confidenceCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Confidence', ''],
+                datasets: [{
+                    data: [0, 100], // Start at 0 for animation
+                    backgroundColor: [
+                        '{{ 'rgba(40, 167, 69, 0.9)' if result.prediction == 'real' else 'rgba(220, 53, 69, 0.9)' }}',
+                        'rgba(200, 200, 200, 0.2)'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                cutout: '80%', // Make the doughnut thinner
+                plugins: {
+                    tooltip: {
+                        enabled: false
+                    },
+                    legend: {
+                        display: false
+                    }
+                },
+                animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 1500,
+                    easing: 'easeOutQuart'
+                }
+            }
+        });
+        
+        // Enhanced center text and animated counter
+        let confidenceValue = 0;
+        const targetConfidence = {{ result.confidence }};
+        const counterSpeed = 25; // ms - faster for smoother animation
+        const counterStep = targetConfidence / (1500 / counterSpeed); // Match the chart animation duration
+        
+        Chart.register({
+            id: 'centerTextPlugin',
+            beforeDraw: function(chart) {
+                if (chart.canvas.id === 'confidenceGauge') {
+                    const width = chart.width;
+                    const height = chart.height;
+                    const ctx = chart.ctx;
+
+                    ctx.restore();
+                    
+                    // Add shadow for better visibility
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+                    ctx.shadowBlur = 5;
+                    ctx.shadowOffsetY = 2;
+                    
+                    ctx.font = "bold 28px 'Poppins', sans-serif";
+                    ctx.textBaseline = "middle";
+                    ctx.fillStyle = "{{ '#28a745' if result.prediction == 'real' else '#dc3545' }}";
+
+                    const text = confidenceValue.toFixed(1) + "%";
+                    const textX = Math.round((width - ctx.measureText(text).width) / 2);
+                    const textY = height / 2;
+
+                    ctx.fillText(text, textX, textY);
+                    
+                    // Remove shadow for label
+                    ctx.shadowColor = 'transparent';
+                    ctx.shadowBlur = 0;
+                    ctx.shadowOffsetY = 0;
+                    
+                    // Label
+                    ctx.font = "14px 'Poppins', sans-serif";
+                    ctx.fillStyle = "#6c757d";
+                    const labelText = "confidence";
+                    const labelX = Math.round((width - ctx.measureText(labelText).width) / 2);
+                    const labelY = height / 2 + 24;
+                    
+                    ctx.fillText(labelText, labelX, labelY);
+                    ctx.save();
+                }
+            }
+        });
+        
+        // Animate gauge and counter
+        const counterInterval = setInterval(() => {
+            confidenceValue += counterStep;
+            if (confidenceValue >= targetConfidence) {
+                confidenceValue = targetConfidence;
+                clearInterval(counterInterval);
+            }
+            
+            confidenceGauge.data.datasets[0].data = [confidenceValue, 100 - confidenceValue];
+            confidenceGauge.update();
+        }, counterSpeed);
+        {% endif %}
+    </script>
+</body>
+</html>

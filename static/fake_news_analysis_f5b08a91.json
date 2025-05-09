@@ -1,0 +1,31 @@
+{
+  "Fake News Analysis Report": {
+    "Timestamp": "2025-05-09T20:34:12.438696",
+    "Article Text (Preview)": "Trump Is So Obsessed He Even Has Obama\u2019s Name Coded Into His Website (IMAGES),\"On Christmas day, Donald Trump announced that he would  be back to work  the following day, but he is golfing for the fourth day in a row. The former reality show star blasted former President Barack Obama for playing golf and now Trump is on track to outpace the number of golf games his predecessor played.Updated my tracker of Trump s appearances at Trump properties.71 rounds of golf including today s. At this pace, ...",
+    "Source URL": "Not provided",
+    "Analysis Results": {
+      "Model Used": "naive_bayes",
+      "Prediction": "FAKE",
+      "Confidence": "98.43%"
+    },
+    "Text Statistics": {
+      "Word Count": 459,
+      "Sentence Count": 16,
+      "Average Word Length": "5.21",
+      "Sentiment Polarity": "-0.04",
+      "Subjectivity": "0.41",
+      "Most Common Words": {
+        "trump": 11,
+        "golf": 9,
+        "december": 9,
+        "obama": 7,
+        "christopher": 5,
+        "ingraham": 5,
+        "code": 5,
+        "website": 4,
+        "https": 4,
+        "coding": 4
+      }
+    }
+  }
+}

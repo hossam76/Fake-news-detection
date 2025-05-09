@@ -318,51 +318,55 @@ def extract_article(url):
 def predict_with_models(text):
     processed_text = preprocess_text(text)
     vectorized_text = vectorizer.transform([processed_text])
-    
-    nb_prediction = int(nb_model.predict(vectorized_text)[0])
+
+    # Get string predictions directly
+    nb_prediction = nb_model.predict(vectorized_text)[0]  # 'real' or 'fake'
     nb_probability = float(nb_model.predict_proba(vectorized_text)[0].max())
-    
-    rf_prediction = int(rf_model.predict(vectorized_text)[0])
+
+    rf_prediction = rf_model.predict(vectorized_text)[0]  # 'real' or 'fake'
     rf_probability = float(rf_model.predict_proba(vectorized_text)[0].max())
-    
+
     results = {
         'naive_bayes': {
-            'prediction': 'real' if nb_prediction == 1 else 'fake',
+            'prediction': nb_prediction,
             'confidence': nb_probability
         },
         'random_forest': {
-            'prediction': 'real' if rf_prediction == 1 else 'fake',
+            'prediction': rf_prediction,
             'confidence': rf_probability
         }
     }
-    
+
     if HAS_TENSORFLOW and lstm_model is not None and tokenizer is not None:
         try:
             sequences = tokenizer.texts_to_sequences([processed_text])
             padded_sequences = pad_sequences(sequences, maxlen=max_sequence_length)
-            
+
             lstm_pred = lstm_model.predict(padded_sequences)[0]
-            lstm_prediction = int(lstm_pred > 0.5)
-            lstm_probability = float(lstm_pred if lstm_prediction else 1 - lstm_pred)
-            
+            lstm_prediction = 'real' if lstm_pred > 0.5 else 'fake'
+            lstm_probability = float(lstm_pred if lstm_prediction == 'real' else 1 - lstm_pred)
+
             results['lstm'] = {
-                'prediction': 'real' if lstm_prediction == 1 else 'fake',
+                'prediction': lstm_prediction,
                 'confidence': lstm_probability
             }
         except Exception as e:
             print(f"Error in LSTM prediction: {e}")
-    
-    predictions = [nb_prediction, rf_prediction]
+
+    # For ensemble, count 'real' as 1, 'fake' as 0
+    predictions = []
+    for model in ['naive_bayes', 'random_forest']:
+        predictions.append(1 if results[model]['prediction'] == 'real' else 0)
     if 'lstm' in results:
         predictions.append(1 if results['lstm']['prediction'] == 'real' else 0)
-    
+
     ensemble_prediction = 1 if sum(predictions) > len(predictions) / 2 else 0
-    
+
     results['ensemble'] = {
         'prediction': 'real' if ensemble_prediction == 1 else 'fake',
         'confidence': sum([results[m]['confidence'] for m in results if m != 'ensemble']) / len(predictions)
     }
-    
+
     return results
 
 # Generate explainable results using LIME

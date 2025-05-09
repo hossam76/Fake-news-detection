@@ -3,17 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Documentation | Fake News Detection System</title>
+    <title>API Documentation - Fake News Detection System</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <style>
+        .api-endpoint {
+            margin-bottom: 2rem;
+            border-left: 4px solid #6c757d;
+            padding-left: 1rem;
+        }
+        .method-badge {
+            font-family: monospace;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        .method-get { background-color: #61affe; color: white; }
+        .method-post { background-color: #49cc90; color: white; }
+        .endpoint-url {
+            font-family: monospace;
+            background-color: #f8f9fa;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .code-block {
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+    </style>
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
+<body class="modern-theme">
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top glass-effect">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-shield-alt me-2"></i>FakeNewsGuard
+            <a class="navbar-brand brand-animated" href="/">
+                <div class="logo-container">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>FakeNewsGuard<sup class="pro-badge">PRO</sup></span>
+                </div>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -38,7 +67,7 @@
                 </ul>
                 <div class="d-flex">
                     <span class="navbar-text me-3">
-                        <span class="badge bg-light text-dark">Final Year Project</span>
+                        <span class="badge bg-gradient pulse-animation">Final Year Project</span>
                     </span>
                 </div>
             </div>
@@ -48,217 +77,334 @@
     <div class="container mt-4">
         <div class="hero-section text-center mb-4">
             <h1 class="display-4"><i class="fas fa-code me-2"></i>API Documentation</h1>
-            <p class="lead">Integrate fake news detection into your applications using our REST API</p>
+            <p class="lead">Integrate our fake news detection capabilities into your applications</p>
         </div>
-        
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-dark text-white">
-                <h4 class="mb-0"><i class="fas fa-info-circle me-2"></i>Introduction</h4>
-            </div>
-            <div class="card-body">
-                <p>Our Fake News Detection API allows developers to easily integrate our machine learning capabilities into their applications. The API provides endpoints for predicting whether a news article is fake or real, retrieving statistics, and processing URLs.</p>
-                
-                <h5 class="mt-4">Base URL</h5>
-                <div class="endpoint-url">https://your-domain.com/api</div>
-                
-                <h5 class="mt-4">Authentication</h5>
-                <p>Currently, the API is available for demonstration purposes without authentication. In a production environment, authentication would be implemented using API keys or OAuth tokens.</p>
-                
-                <div class="alert alert-warning mt-4">
-                    <i class="fas fa-exclamation-triangle me-2"></i> <strong>Note:</strong> This API documentation is provided as an educational component of this final year project. The endpoints are functional for demonstration and testing purposes.
+
+        <div class="row">
+            <div class="col-md-3 mb-4">
+                <div class="sticky-top" style="top: 80px;">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0">Contents</h5>
+                        </div>
+                        <div class="card-body">
+                            <nav class="nav flex-column">
+                                <a class="nav-link" href="#introduction">Introduction</a>
+                                <a class="nav-link" href="#authentication">Authentication</a>
+                                <a class="nav-link" href="#predict">Predict Endpoint</a>
+                                <a class="nav-link" href="#predict-ensemble">Predict Ensemble</a>
+                                <a class="nav-link" href="#analyze-url">Analyze URL</a>
+                                <a class="nav-link" href="#stats">Statistics Endpoint</a>
+                                <a class="nav-link" href="#error-handling">Error Handling</a>
+                                <a class="nav-link" href="#rate-limits">Rate Limits</a>
+                                <a class="nav-link" href="#code-examples">Code Examples</a>
+                            </nav>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="api-section">
-            <h3>Prediction Endpoints</h3>
-            
-            <div class="endpoint">
-                <span class="method post">POST</span> <span class="endpoint-name">/predict</span>
-                <p>Analyzes text and predicts whether it's real or fake news.</p>
-                
-                <h6>Request Body</h6>
-                <div class="endpoint-url">
-                    {<br>
-                    &nbsp;&nbsp;<span class="key">"text"</span>: <span class="string">"The news article content to analyze..."</span>,<br>
-                    &nbsp;&nbsp;<span class="key">"model"</span>: <span class="string">"naive_bayes"</span> <span class="text-muted">// Optional: "naive_bayes", "random_forest", "lstm", "all"</span><br>
-                    }
-                </div>
-                
-                <h6>Response</h6>
-                <div class="response-example">
-                    {<br>
-                    &nbsp;&nbsp;<span class="key">"prediction"</span>: <span class="string">"fake"</span>,<br>
-                    &nbsp;&nbsp;<span class="key">"confidence"</span>: <span class="number">0.89</span>,<br>
-                    &nbsp;&nbsp;<span class="key">"model_used"</span>: <span class="string">"naive_bayes"</span><br>
-                    }
-                </div>
-                
-                <table class="param-table mt-3">
-                    <tr>
-                        <th>Parameter</th>
-                        <th>Type</th>
-                        <th>Required</th>
-                        <th>Description</th>
-                    </tr>
-                    <tr>
-                        <td>text</td>
-                        <td>string</td>
-                        <td>Yes</td>
-                        <td>The news article content to analyze</td>
-                    </tr>
-                    <tr>
-                        <td>model</td>
-                        <td>string</td>
-                        <td>No</td>
-                        <td>ML model to use (defaults to "naive_bayes")</td>
-                    </tr>
-                </table>
-            </div>
-            
-            <div class="endpoint">
-                <span class="method post">POST</span> <span class="endpoint-name">/predict_ensemble</span>
-                <p>Analyzes text using an ensemble of models for higher accuracy.</p>
-                
-                <h6>Request Body</h6>
-                <div class="endpoint-url">
-                    {<br>
-                    &nbsp;&nbsp;<span class="key">"text"</span>: <span class="string">"The news article content to analyze..."</span><br>
-                    }
-                </div>
-                
-                <h6>Response</h6>
-                <div class="response-example">
-                    {<br>
-                    &nbsp;&nbsp;<span class="key">"prediction"</span>: <span class="string">"real"</span>,<br>
-                    &nbsp;&nbsp;<span class="key">"confidence"</span>: <span class="number">0.92</span><br>
-                    }
-                </div>
-            </div>
-            
-            <div class="endpoint">
-                <span class="method post">POST</span> <span class="endpoint-name">/analyze_url</span>
-                <p>Extracts and analyzes content from a news article URL.</p>
-                
-                <h6>Request Body</h6>
-                <div class="endpoint-url">
-                    {<br>
-                    &nbsp;&nbsp;<span class="key">"url"</span>: <span class="string">"https://example.com/news-article"</span><br>
-                    }
-                </div>
-                
-                <h6>Response</h6>
-                <div class="response-example">
-                    {<br>
-                    &nbsp;&nbsp;<span class="key">"success"</span>: <span class="boolean">true</span>,<br>
-                    &nbsp;&nbsp;<span class="key">"title"</span>: <span class="string">"Article Title"</span>,<br>
-                    &nbsp;&nbsp;<span class="key">"text"</span>: <span class="string">"Extracted article content..."</span>,<br>
-                    &nbsp;&nbsp;<span class="key">"authors"</span>: [<span class="string">"John Doe"</span>],<br>
-                    &nbsp;&nbsp;<span class="key">"publish_date"</span>: <span class="string">"2023-01-15T14:30:00"</span>,<br>
-                    &nbsp;&nbsp;<span class="key">"keywords"</span>: [<span class="string">"politics"</span>, <span class="string">"election"</span>]<br>
-                    }
-                </div>
-            </div>
-        </div>
-        
-        <div class="api-section">
-            <h3>Statistics Endpoints</h3>
-            
-            <div class="endpoint">
-                <span class="method get">GET</span> <span class="endpoint-name">/api/stats</span>
-                <p>Retrieves analysis statistics and model performance data.</p>
-                
-                <h6>Response</h6>
-                <div class="response-example">
-                    {<br>
-                    &nbsp;&nbsp;<span class="key">"total_analyses"</span>: <span class="number">400</span>,<br>
-                    &nbsp;&nbsp;<span class="key">"fake_count"</span>: <span class="number">157</span>,<br>
-                    &nbsp;&nbsp;<span class="key">"real_count"</span>: <span class="number">243</span>,<br>
-                    &nbsp;&nbsp;<span class="key">"fake_percent"</span>: <span class="number">39.25</span>,<br>
-                    &nbsp;&nbsp;<span class="key">"real_percent"</span>: <span class="number">60.75</span>,<br>
-                    &nbsp;&nbsp;<span class="key">"model_performance"</span>: { <span class="text-muted">// Performance metrics for each model</span> },<br>
-                    &nbsp;&nbsp;<span class="key">"time_series"</span>: { <span class="text-muted">// Time series data for trends</span> }<br>
-                    }
-                </div>
-            </div>
-            
-            <div class="endpoint">
-                <span class="method get">GET</span> <span class="endpoint-name">/show_data</span>
-                <p>Retrieves information about the training dataset.</p>
-                
-                <h6>Response</h6>
-                <div class="response-example">
-                    {<br>
-                    &nbsp;&nbsp;<span class="key">"filename"</span>: <span class="string">"preprocessed_data.csv"</span>,<br>
-                    &nbsp;&nbsp;<span class="key">"num_rows"</span>: <span class="number">20800</span>,<br>
-                    &nbsp;&nbsp;<span class="key">"columns"</span>: [<span class="string">"text"</span>, <span class="string">"label"</span>, ...],<br>
-                    &nbsp;&nbsp;<span class="key">"sample"</span>: [ <span class="text-muted">// Sample of first 5 rows</span> ],<br>
-                    &nbsp;&nbsp;<span class="key">"summary"</span>: { <span class="text-muted">// Statistical summary of numeric columns</span> }<br>
-                    }
-                </div>
-            </div>
-        </div>
-        
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0"><i class="fas fa-laptop-code me-2"></i>Code Examples</h4>
-            </div>
-            <div class="card-body">
-                <h5>Python Example</h5>
-                <div class="response-example">
-                    <span class="text-muted"># Using the predict endpoint with Python and requests</span><br>
-                    import requests<br>
-                    import json<br><br>
-                    
-                    <span class="text-muted"># Define the endpoint and payload</span><br>
-                    url = "http://your-domain.com/predict"<br>
-                    payload = {<br>
-                    &nbsp;&nbsp;"text": "The article content to analyze...",<br>
-                    &nbsp;&nbsp;"model": "ensemble"<br>
-                    }<br><br>
-                    
-                    <span class="text-muted"># Make the request</span><br>
-                    response = requests.post(url, json=payload)<br>
-                    result = response.json()<br><br>
-                    
-                    <span class="text-muted"># Process the result</span><br>
-                    if result["prediction"] == "fake":<br>
-                    &nbsp;&nbsp;print(f"This article is likely FAKE news with {result['confidence']*100:.1f}% confidence")<br>
-                    else:<br>
-                    &nbsp;&nbsp;print(f"This article is likely REAL news with {result['confidence']*100:.1f}% confidence")<br>
-                </div>
-                
-                <h5 class="mt-4">JavaScript Example</h5>
-                <div class="response-example">
-                    <span class="text-muted">// Using the predict endpoint with JavaScript and fetch</span><br>
-                    const analyzeText = async (text) => {<br>
-                    &nbsp;&nbsp;const url = "http://your-domain.com/predict";<br>
-                    &nbsp;&nbsp;const payload = {<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;text: text,<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;model: "ensemble"<br>
-                    &nbsp;&nbsp;};<br><br>
-                    
-                    &nbsp;&nbsp;try {<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;const response = await fetch(url, {<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;method: "POST",<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;headers: {<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Content-Type": "application/json"<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;body: JSON.stringify(payload)<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;});<br><br>
-                    
-                    &nbsp;&nbsp;&nbsp;&nbsp;const result = await response.json();<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;console.log(`Prediction: ${result.prediction}, Confidence: ${result.confidence*100}%`);<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;return result;<br>
-                    &nbsp;&nbsp;} catch (error) {<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;console.error("Error analyzing text:", error);<br>
-                    &nbsp;&nbsp;}<br>
-                    };<br>
+            <div class="col-md-9">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <section id="introduction">
+                            <h2>Introduction</h2>
+                            <p>The Fake News Detection API provides programmatic access to our machine learning models for detecting fake news. You can use this API to integrate fake news detection into your own applications, websites, or research projects.</p>
+                            
+                            <div class="alert alert-info">
+                                <strong>Base URL:</strong> <code>https://your-domain.com</code> or <code>http://localhost:5000</code> for local development
+                            </div>
+                            
+                            <p>All API requests should be made to the base URL plus the endpoint path.</p>
+                        </section>
+                        
+                        <hr>
+                        
+                        <section id="authentication">
+                            <h2>Authentication</h2>
+                            <p>Currently, the API does not require authentication for demonstration purposes. In a production environment, API keys would be implemented.</p>
+                        </section>
+                        
+                        <hr>
+                        
+                        <section id="predict">
+                            <h2>Predict Endpoint</h2>
+                            <div class="api-endpoint">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="method-badge method-post">POST</span>
+                                    <span class="endpoint-url">/predict</span>
+                                </div>
+                                <p>Analyze text using a specific model to determine if it's fake or real news.</p>
+                                
+                                <h5>Request Parameters:</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Parameter</th>
+                                                <th>Type</th>
+                                                <th>Required</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><code>text</code></td>
+                                                <td>string</td>
+                                                <td>Yes</td>
+                                                <td>The news article text to analyze</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>model</code></td>
+                                                <td>string</td>
+                                                <td>No</td>
+                                                <td>Model to use for prediction: <code>naive_bayes</code> (default), <code>random_forest</code>, <code>lstm</code>, or <code>all</code></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <h5>Example Request:</h5>
+                                <pre class="code-block"><code class="language-json">{
+  "text": "Scientists discover new species of deep sea creatures near the Mariana Trench.",
+  "model": "random_forest"
+}</code></pre>
+                                
+                                <h5>Example Response:</h5>
+                                <pre class="code-block"><code class="language-json">{
+  "prediction": "real",
+  "confidence": 0.87,
+  "model_used": "random_forest"
+}</code></pre>
+                            </div>
+                        </section>
+                        
+                        <hr>
+                        
+                        <section id="predict-ensemble">
+                            <h2>Predict Ensemble Endpoint</h2>
+                            <div class="api-endpoint">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="method-badge method-post">POST</span>
+                                    <span class="endpoint-url">/predict_ensemble</span>
+                                </div>
+                                <p>Analyze text using an ensemble of all available models for higher accuracy.</p>
+                                
+                                <h5>Request Parameters:</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Parameter</th>
+                                                <th>Type</th>
+                                                <th>Required</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><code>text</code></td>
+                                                <td>string</td>
+                                                <td>Yes</td>
+                                                <td>The news article text to analyze</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <h5>Example Request:</h5>
+                                <pre class="code-block"><code class="language-json">{
+  "text": "Breaking: President confirms aliens exist and have been visiting Earth for centuries."
+}</code></pre>
+                                
+                                <h5>Example Response:</h5>
+                                <pre class="code-block"><code class="language-json">{
+  "prediction": "fake",
+  "confidence": 0.95
+}</code></pre>
+                            </div>
+                        </section>
+                        
+                        <hr>
+                        
+                        <section id="analyze-url">
+                            <h2>Analyze URL Endpoint</h2>
+                            <div class="api-endpoint">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="method-badge method-post">POST</span>
+                                    <span class="endpoint-url">/analyze_url</span>
+                                </div>
+                                <p>Extract and analyze content from a news article URL.</p>
+                                
+                                <h5>Request Parameters:</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Parameter</th>
+                                                <th>Type</th>
+                                                <th>Required</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><code>url</code></td>
+                                                <td>string</td>
+                                                <td>Yes</td>
+                                                <td>URL of the news article to analyze</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <h5>Example Request:</h5>
+                                <pre class="code-block"><code class="language-json">{
+  "url": "https://example.com/news/article12345"
+}</code></pre>
+                                
+                                <h5>Example Response:</h5>
+                                <pre class="code-block"><code class="language-json">{
+  "success": true,
+  "title": "Example News Article Title",
+  "text": "Full text content of the article...",
+  "authors": ["Jane Doe", "John Smith"],
+  "publish_date": "2023-05-18T14:30:00",
+  "top_image": "https://example.com/images/article12345.jpg",
+  "keywords": ["science", "discovery", "research"],
+  "summary": "Brief summary of the article content..."
+}</code></pre>
+                            </div>
+                        </section>
+                        
+                        <hr>
+                        
+                        <section id="stats">
+                            <h2>Statistics Endpoint</h2>
+                            <div class="api-endpoint">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="method-badge method-get">GET</span>
+                                    <span class="endpoint-url">/api/stats</span>
+                                </div>
+                                <p>Retrieve statistics about fake news detection and model performance.</p>
+                                
+                                <h5>Example Response:</h5>
+                                <pre class="code-block"><code class="language-json">{
+  "total_analyses": 400,
+  "fake_count": 157,
+  "real_count": 243,
+  "fake_percent": 39.25,
+  "real_percent": 60.75,
+  "model_performance": {
+    "naive_bayes": {
+      "accuracy": 78.5,
+      "precision": 82.1,
+      "recall": 75.8
+    },
+    "random_forest": {
+      "accuracy": 83.2,
+      "precision": 85.7,
+      "recall": 79.2
+    },
+    "lstm": {
+      "accuracy": 88.7,
+      "precision": 89.4,
+      "recall": 87.1
+    },
+    "ensemble": {
+      "accuracy": 90.2,
+      "precision": 91.3,
+      "recall": 89.5
+    }
+  },
+  "time_series": {
+    "dates": ["2023-01", "2023-02", "2023-03", "..."],
+    "fake_trend": [42, 51, 63, "..."],
+    "real_trend": [58, 69, 72, "..."]
+  }
+}</code></pre>
+                            </div>
+                        </section>
+                        
+                        <hr>
+                        
+                        <section id="error-handling">
+                            <h2>Error Handling</h2>
+                            <p>The API uses standard HTTP status codes to indicate the success or failure of requests:</p>
+                            <ul>
+                                <li><strong>200 OK</strong> - Request succeeded</li>
+                                <li><strong>400 Bad Request</strong> - Invalid input parameters</li>
+                                <li><strong>404 Not Found</strong> - Resource not found</li>
+                                <li><strong>500 Internal Server Error</strong> - Server-side error</li>
+                            </ul>
+                            
+                            <h5>Error Response Format:</h5>
+                            <pre class="code-block"><code class="language-json">{
+  "error": "Description of what went wrong"
+}</code></pre>
+                        </section>
+                        
+                        <hr>
+                        
+                        <section id="rate-limits">
+                            <h2>Rate Limits</h2>
+                            <p>In a production environment, API rate limits would apply. For the demonstration version, no rate limits are enforced.</p>
+                        </section>
+                        
+                        <hr>
+                        
+                        <section id="code-examples">
+                            <h2>Code Examples</h2>
+                            
+                            <h5>Python Example:</h5>
+                            <pre class="code-block"><code class="language-python">import requests
+import json
+
+url = 'http://localhost:5000/predict'
+data = {
+    'text': 'Scientists discover new species of deep sea creatures near the Mariana Trench.',
+    'model': 'ensemble'
+}
+
+response = requests.post(url, json=data)
+
+if response.status_code == 200:
+    result = response.json()
+    print(f"Prediction: {result['prediction']}")
+    print(f"Confidence: {result['confidence'] * 100:.2f}%")
+else:
+    print(f"Error: {response.text}")</code></pre>
+                            
+                            <h5>JavaScript Example:</h5>
+                            <pre class="code-block"><code class="language-javascript">async function detectFakeNews(text) {
+  try {
+    const response = await fetch('http://localhost:5000/predict_ensemble', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ text }),
+    });
+    
+    const result = await response.json();
+    
+    if (response.ok) {
+      console.log(`Prediction: ${result.prediction}`);
+      console.log(`Confidence: ${(result.confidence * 100).toFixed(2)}%`);
+      return result;
+    } else {
+      console.error(`Error: ${result.error}`);
+    }
+  } catch (error) {
+    console.error('Network error:', error);
+  }
+}</code></pre>
+                        </section>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <footer class="footer mt-5">
         <div class="container">
             <div class="row">
@@ -277,9 +423,9 @@
                 <div class="col-md-3">
                     <h5>References</h5>
                     <ul class="list-unstyled">
+                        <li><a href="/api_docs">API Documentation</a></li>
                         <li><a href="/case_studies">Case Studies</a></li>
                         <li><a href="#">Project Repository</a></li>
-                        <li><a href="#">Research Paper</a></li>
                     </ul>
                 </div>
             </div>
@@ -289,8 +435,10 @@
             </div>
         </div>
     </footer>
-    
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 </body>
 </html>

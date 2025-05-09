@@ -3,18 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Fake News Detection System</title>
+    <title>Dashboard - Fake News Detection System</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
+<body class="modern-theme">
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top glass-effect">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-shield-alt me-2"></i>FakeNewsGuard
+            <a class="navbar-brand brand-animated" href="/">
+                <div class="logo-container">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>FakeNewsGuard<sup class="pro-badge">PRO</sup></span>
+                </div>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -39,7 +42,7 @@
                 </ul>
                 <div class="d-flex">
                     <span class="navbar-text me-3">
-                        <span class="badge bg-light text-dark">Final Year Project</span>
+                        <span class="badge bg-gradient pulse-animation">Final Year Project</span>
                     </span>
                 </div>
             </div>
@@ -47,132 +50,144 @@
     </nav>
 
     <div class="container mt-4">
-        <h1 class="mb-4"><i class="fas fa-tachometer-alt me-2"></i> Analytics Dashboard</h1>
-        
-        <div class="row">
-            <div class="col-md-3 mb-4">
-                <div class="dashboard-stat-card card-blue">
-                    <div class="icon">
-                        <i class="fas fa-chart-pie"></i>
-                    </div>
-                    <div class="stat-title">Total Analyses</div>
-                    <div class="stat-value">{{ stats.total_analyses }}</div>
-                    <div class="trend trend-up">
-                        <i class="fas fa-arrow-up me-1"></i> 12.5% from last month
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="dashboard-stat-card card-red">
-                    <div class="icon">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                    <div class="stat-title">Fake News Detected</div>
-                    <div class="stat-value">{{ stats.fake_count }}</div>
-                    <div class="trend trend-up">
-                        <i class="fas fa-arrow-up me-1"></i> 8.3% from last month
+        <div class="hero-section text-center mb-4">
+            <h1 class="display-4"><i class="fas fa-chart-line me-2"></i>Analytics Dashboard</h1>
+            <p class="lead">Real-time statistics and insights from our fake news detection system</p>
+        </div>
+
+        <!-- Analytics Overview -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card stat-card high-emphasis shadow-sm">
+                    <div class="card-body">
+                        <div class="stat-icon">
+                            <i class="fas fa-newspaper"></i>
+                        </div>
+                        <div class="stat-value" id="totalAnalyses">{{ stats.total_analyses }}</div>
+                        <div class="stat-label">Total Analyses</div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-4">
-                <div class="dashboard-stat-card card-green">
-                    <div class="icon">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="stat-title">Real News Verified</div>
-                    <div class="stat-value">{{ stats.real_count }}</div>
-                    <div class="trend trend-up">
-                        <i class="fas fa-arrow-up me-1"></i> 15.2% from last month
+            <div class="col-md-3 mb-3">
+                <div class="card stat-card shadow-sm">
+                    <div class="card-body">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-value text-success" id="realCount">{{ stats.real_count }}</div>
+                        <div class="stat-label">Real News Detected</div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-4">
-                <div class="dashboard-stat-card card-yellow">
-                    <div class="icon">
-                        <i class="fas fa-percentage"></i>
+            <div class="col-md-3 mb-3">
+                <div class="card stat-card shadow-sm">
+                    <div class="card-body">
+                        <div class="stat-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-value text-danger" id="fakeCount">{{ stats.fake_count }}</div>
+                        <div class="stat-label">Fake News Detected</div>
                     </div>
-                    <div class="stat-title">Average Confidence</div>
-                    <div class="stat-value">{{ "%.1f"|format(stats.avg_confidence) }}%</div>
-                    <div class="trend trend-up">
-                        <i class="fas fa-arrow-up me-1"></i> 2.1% from last month
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stat-card shadow-sm">
+                    <div class="card-body">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="stat-value text-info" id="avgConfidence">{{ stats.avg_confidence|round(1) }}%</div>
+                        <div class="stat-label">Avg. Confidence</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <!-- Fake vs Real Distribution Chart -->
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0"><i class="fas fa-chart-pie me-2"></i>News Distribution</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="distributionChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+            <!-- Model Performance Chart -->
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title mb-0"><i class="fas fa-robot me-2"></i>Model Performance</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="modelPerformanceChart" height="250"></canvas>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="row">
-            <div class="col-md-8">
-                <div class="chart-container">
-                    <h5><i class="fas fa-chart-line me-2"></i>News Classification Trend</h5>
-                    <canvas id="trendChart" height="250"></canvas>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="chart-container">
-                    <h5><i class="fas fa-chart-pie me-2"></i>Results Distribution</h5>
-                    <canvas id="distributionChart" height="250"></canvas>
-                </div>
-            </div>
-        </div>
-        
-        <div class="row">
-            <div class="col-md-6">
-                <div class="chart-container">
-                    <h5><i class="fas fa-trophy me-2"></i>Model Performance Comparison</h5>
-                    <canvas id="performanceChart" height="300"></canvas>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="chart-container">
-                    <h5><i class="fas fa-brain me-2"></i>Model Usage</h5>
-                    <canvas id="modelUsageChart" height="300"></canvas>
+        <div class="row mb-4">
+            <!-- Time Series Chart -->
+            <div class="col-md-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="card-title mb-0"><i class="fas fa-calendar-alt me-2"></i>Detection Trends Over Time</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="timeSeriesChart" height="300"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <div class="card shadow mb-4">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Analyses</h5>
+        <!-- Recent Analyses -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-dark text-white">
+                <h5 class="card-title mb-0"><i class="fas fa-history me-2"></i>Recent Analyses</h5>
             </div>
             <div class="card-body">
-                {% if analyses %}
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>Date</th>
                                 <th>Text Preview</th>
-                                <th>Model</th>
+                                <th>Model Used</th>
                                 <th>Result</th>
                                 <th>Confidence</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for analysis in analyses %}
-                            <tr>
-                                <td>{{ analysis.timestamp.split('T')[0] }}</td>
-                                <td>{{ analysis.text[:50] }}...</td>
-                                <td>{{ analysis.model_choice }}</td>
-                                <td>
-                                    <span class="badge {{ 'bg-success' if analysis.result.prediction == 'real' else 'bg-danger' }}">
-                                        {{ analysis.result.prediction|upper }}
-                                    </span>
-                                </td>
-                                <td>{{ "%.1f"|format(analysis.result.confidence) }}%</td>
-                            </tr>
-                            {% endfor %}
+                            {% if analyses %}
+                                {% for analysis in analyses %}
+                                <tr>
+                                    <td>{{ analysis.timestamp.split('T')[0] }}</td>
+                                    <td>{{ analysis.text[:50] }}...</td>
+                                    <td>{{ analysis.result.model_used }}</td>
+                                    <td>
+                                        {% if analysis.result.prediction == 'fake' %}
+                                        <span class="badge bg-danger">Fake</span>
+                                        {% else %}
+                                        <span class="badge bg-success">Real</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ analysis.result.confidence|round(1) }}%</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center">No analysis data available</td>
+                                </tr>
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>
-                {% else %}
-                <div class="alert alert-info mb-0">
-                    <i class="fas fa-info-circle me-2"></i>No analysis data available yet. Try analyzing some news articles first!
-                </div>
-                {% endif %}
             </div>
         </div>
     </div>
-    
+
     <footer class="footer mt-5">
         <div class="container">
             <div class="row">
@@ -184,16 +199,16 @@
                     <h5>Links</h5>
                     <ul class="list-unstyled">
                         <li><a href="/">Home</a></li>
+                        <li><a href="/dashboard">Dashboard</a></li>
                         <li><a href="/learn">Learning Center</a></li>
-                        <li><a href="/api_docs">API Documentation</a></li>
                     </ul>
                 </div>
                 <div class="col-md-3">
                     <h5>References</h5>
                     <ul class="list-unstyled">
+                        <li><a href="/api_docs">API Documentation</a></li>
                         <li><a href="/case_studies">Case Studies</a></li>
                         <li><a href="#">Project Repository</a></li>
-                        <li><a href="#">Research Paper</a></li>
                     </ul>
                 </div>
             </div>
@@ -203,191 +218,127 @@
             </div>
         </div>
     </footer>
-    
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     
-    <!-- Dashboard Charts -->
     <script>
-        // Fetch API data
-        $(document).ready(function() {
-            $.ajax({
-                url: '/api/stats',
-                method: 'GET',
-                success: function(data) {
-                    // Init charts once data is available
-                    initDistributionChart(data);
-                    initTrendChart(data);
-                    initPerformanceChart(data);
-                    initModelUsageChart();
-                },
-                error: function(err) {
-                    console.error("Error fetching statistics:", err);
-                }
-            });
-        });
-        
-        function initDistributionChart(data) {
-            const ctx = document.getElementById('distributionChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Fake News', 'Real News'],
-                    datasets: [{
-                        data: [data.fake_count, data.real_count],
-                        backgroundColor: ['#e74a3b', '#1cc88a'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    },
-                    cutout: '70%'
-                }
-            });
-        }
-        
-        function initTrendChart(data) {
-            const ctx = document.getElementById('trendChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.time_series.dates,
-                    datasets: [
-                        {
-                            label: 'Fake News',
-                            data: data.time_series.fake_trend,
-                            borderColor: '#e74a3b',
-                            backgroundColor: 'rgba(231, 74, 59, 0.1)',
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.4
+        // Fetch statistics data from API
+        fetch('/api/stats')
+            .then(response => response.json())
+            .then(data => {
+                // Distribution Chart
+                const distributionChart = new Chart(
+                    document.getElementById('distributionChart'),
+                    {
+                        type: 'pie',
+                        data: {
+                            labels: ['Real News', 'Fake News'],
+                            datasets: [{
+                                data: [data.real_count, data.fake_count],
+                                backgroundColor: ['rgba(40, 167, 69, 0.7)', 'rgba(220, 53, 69, 0.7)'],
+                                borderColor: ['#28a745', '#dc3545'],
+                                borderWidth: 1
+                            }]
                         },
-                        {
-                            label: 'Real News',
-                            data: data.time_series.real_trend,
-                            borderColor: '#1cc88a',
-                            backgroundColor: 'rgba(28, 200, 138, 0.1)',
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.4
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'top'
-                        }
-                    },
-                    interaction: {
-                        mode: 'index',
-                        intersect: false
-                    }
-                }
-            });
-        }
-        
-        function initPerformanceChart(data) {
-            const ctx = document.getElementById('performanceChart').getContext('2d');
-            
-            const models = Object.keys(data.model_performance);
-            const accuracy = models.map(model => data.model_performance[model].accuracy);
-            const precision = models.map(model => data.model_performance[model].precision);
-            const recall = models.map(model => data.model_performance[model].recall);
-            
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: models.map(m => m.charAt(0).toUpperCase() + m.slice(1).replace('_', ' ')),
-                    datasets: [
-                        {
-                            label: 'Accuracy',
-                            data: accuracy,
-                            backgroundColor: 'rgba(78, 115, 223, 0.8)',
-                            borderColor: 'rgba(78, 115, 223, 1)',
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'Precision',
-                            data: precision,
-                            backgroundColor: 'rgba(28, 200, 138, 0.8)',
-                            borderColor: 'rgba(28, 200, 138, 1)',
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'Recall',
-                            data: recall,
-                            backgroundColor: 'rgba(54, 185, 204, 0.8)',
-                            borderColor: 'rgba(54, 185, 204, 1)',
-                            borderWidth: 1
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'top'
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const label = context.label || '';
+                                            const value = context.raw || 0;
+                                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                            const percentage = Math.round((value / total) * 100);
+                                            return `${label}: ${value} (${percentage}%)`;
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
-                }
-            });
-        }
-        
-        function initModelUsageChart() {
-            const ctx = document.getElementById('modelUsageChart').getContext('2d');
-            
-            // Model usage data (from page variables or use dummy data)
-            const usage = {{ stats.model_usage|tojson|safe }};
-            const models = Object.keys(usage);
-            const counts = Object.values(usage);
-            
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: models.map(m => m.charAt(0).toUpperCase() + m.slice(1).replace('_', ' ')),
-                    datasets: [{
-                        data: counts,
-                        backgroundColor: [
-                            'rgba(78, 115, 223, 0.8)',
-                            'rgba(255, 193, 7, 0.8)',
-                            'rgba(111, 66, 193, 0.8)',
-                            'rgba(28, 200, 138, 0.8)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right'
+                );
+                
+                // Model Performance Chart
+                const modelPerf = data.model_performance;
+                const modelPerfChart = new Chart(
+                    document.getElementById('modelPerformanceChart'),
+                    {
+                        type: 'bar',
+                        data: {
+                            labels: ['Naive Bayes', 'Random Forest', 'LSTM', 'Ensemble'],
+                            datasets: [{
+                                label: 'Accuracy',
+                                data: [
+                                    modelPerf.naive_bayes.accuracy, 
+                                    modelPerf.random_forest.accuracy,
+                                    modelPerf.lstm.accuracy,
+                                    modelPerf.ensemble.accuracy
+                                ],
+                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                borderColor: 'rgb(54, 162, 235)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100
+                                }
+                            }
                         }
                     }
-                }
-            });
-        }
+                );
+                
+                // Time Series Chart
+                const timeSeriesChart = new Chart(
+                    document.getElementById('timeSeriesChart'),
+                    {
+                        type: 'line',
+                        data: {
+                            labels: data.time_series.dates,
+                            datasets: [
+                                {
+                                    label: 'Fake News',
+                                    data: data.time_series.fake_trend,
+                                    borderColor: 'rgb(220, 53, 69)',
+                                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                                    tension: 0.3,
+                                    fill: true
+                                },
+                                {
+                                    label: 'Real News',
+                                    data: data.time_series.real_trend,
+                                    borderColor: 'rgb(40, 167, 69)',
+                                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                                    tension: 0.3,
+                                    fill: true
+                                }
+                            ]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    }
+                );
+                
+                // Update stat counters
+                document.getElementById('totalAnalyses').textContent = data.total_analyses;
+                document.getElementById('realCount').textContent = data.real_count;
+                document.getElementById('fakeCount').textContent = data.fake_count;
+                document.getElementById('avgConfidence').textContent = data.avg_confidence.toFixed(1) + '%';
+            })
+            .catch(error => console.error('Error loading analytics data:', error));
     </script>
 </body>
 </html>

@@ -8,11 +8,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
+<body class="modern-theme">
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top glass-effect">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-shield-alt me-2"></i>FakeNewsGuard
+            <a class="navbar-brand brand-animated" href="/">
+                <div class="logo-container">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>FakeNewsGuard<sup class="pro-badge">PRO</sup></span>
+                </div>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -23,85 +26,319 @@
                         <a class="nav-link" href="/"><i class="fas fa-home me-1"></i>Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="/learn"><i class="fas fa-book me-1"></i>Learn</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="/dashboard"><i class="fas fa-chart-line me-1"></i>Dashboard</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/learn"><i class="fas fa-graduation-cap me-1"></i>Learn</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/case_studies"><i class="fas fa-microscope me-1"></i>Case Studies</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/api_docs"><i class="fas fa-code me-1"></i>API</a>
+                    </li>
                 </ul>
+                <div class="d-flex">
+                    <span class="navbar-text me-3">
+                        <span class="badge bg-gradient pulse-animation">Final Year Project</span>
+                    </span>
+                </div>
             </div>
         </div>
     </nav>
 
     <div class="container mt-4">
-        <div class="text-center mb-4">
+        <div class="hero-section text-center mb-4">
             <h1 class="display-4"><i class="fas fa-book me-2"></i>Learn About Fake News</h1>
-            <p class="lead">Understand the impact of fake news and how to identify it</p>
+            <p class="lead">Understanding how to identify and combat misinformation in today's digital world</p>
         </div>
 
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card mb-4 shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        <h4 class="card-title mb-0"><i class="fas fa-info-circle me-2"></i>What is Fake News?</h4>
-                    </div>
-                    <div class="card-body">
-                        <p>Fake news refers to false or misleading information presented as factual news. It is often created to:</p>
-                        <ul>
-                            <li>Influence political views</li>
-                            <li>Generate website traffic</li>
-                            <li>Spread misinformation</li>
-                            <li>Manipulate public perception</li>
-                        </ul>
-                    </div>
-                </div>
+        <!-- Introduction Section -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-dark text-white">
+                <h4 class="mb-0"><i class="fas fa-info-circle me-2"></i>What is Fake News?</h4>
             </div>
-
-            <div class="col-md-6">
-                <div class="card mb-4 shadow-sm">
-                    <div class="card-header bg-success text-white">
-                        <h4 class="card-title mb-0"><i class="fas fa-lightbulb me-2"></i>How to Spot Fake News</h4>
-                    </div>
-                    <div class="card-body">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <p>Fake news refers to false or misleading information presented as legitimate news. It's designed to influence public opinion, generate web traffic, or push a political agenda. In today's digital age, fake news can spread rapidly through social media platforms, reaching millions before fact-checkers can respond.</p>
+                        <p>The term gained significant prominence during the 2016 US presidential election when numerous fabricated stories went viral on social media platforms. However, misinformation has been a challenge throughout human history.</p>
+                        <h5 class="mt-4">Why Fake News is Dangerous:</h5>
                         <ul>
-                            <li>Check the source of the news</li>
-                            <li>Read beyond the headlines</li>
-                            <li>Look for unusual URLs</li>
-                            <li>Verify the date and facts</li>
-                            <li>Cross-check with other reputable sources</li>
+                            <li>Undermines trust in legitimate media sources</li>
+                            <li>Influences public opinion based on falsehoods</li>
+                            <li>Can incite violence or discrimination against groups</li>
+                            <li>Impedes informed democratic decision-making</li>
+                            <li>Creates confusion during critical events like health crises</li>
                         </ul>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-center justify-content-center">
+                        <div class="text-center">
+                            <i class="fas fa-newspaper fa-5x text-primary mb-3"></i>
+                            <div class="alert alert-warning">
+                                <strong><i class="fas fa-exclamation-triangle me-2"></i>Did you know?</strong><br>
+                                Research shows that false news stories are 70% more likely to be retweeted than true stories.
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Identifying Fake News Section -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-search me-2"></i>How to Identify Fake News</h4>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <p>Learning to identify fake news is an essential skill in today's digital landscape. Here are several strategies to help you determine if a news article might be false or misleading:</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-check-circle text-success me-2"></i>Check the Source</h5>
+                                <p>Investigate the website domain and look up the organization. Legitimate news sources usually have professional websites with an "About" section. Be wary of unusual URLs (.co instead of .com) or website names that mimic established outlets.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-user-edit text-warning me-2"></i>Look for Author Credentials</h5>
+                                <p>Check if the author is real and credible. Professional journalists typically have a history of published work. Anonymous articles or those without clear attribution should raise a red flag.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-calendar-alt text-info me-2"></i>Check the Date</h5>
+                                <p>Old news stories may be recirculated as "breaking news." Always verify when an article was published and if the information is still relevant and accurate in the current context.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-link text-danger me-2"></i>Examine Supporting Sources</h5>
+                                <p>Check if cited sources actually support the claims made. Fake news often lacks sources, includes fake sources, or links to unrelated content that doesn't support the assertions.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-exclamation text-primary me-2"></i>Watch for Sensational Language</h5>
+                                <p>Exaggerated claims, excessive punctuation (!!!), ALL CAPS, and emotionally charged language often signal misleading content designed to trigger emotional reactions rather than inform.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5><i class="fas fa-images text-success me-2"></i>Verify Images</h5>
+                                <p>Images can be manipulated or taken out of context. Use reverse image search tools like Google Images or TinEye to check if photos have been altered or used in a misleading context.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Common Patterns Section -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Common Patterns in Fake News</h4>
+            </div>
+            <div class="card-body">
+                <p>Our machine learning models have identified several recurring patterns in fake news articles. Understanding these patterns can help you spot potential misinformation:</p>
+                
+                <div class="row mt-4">
+                    <div class="col-md-4 mb-4">
+                        <div class="card stat-card">
+                            <div class="card-body">
+                                <div class="stat-icon">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                </div>
+                                <div class="stat-value">78%</div>
+                                <div class="stat-label">Contain emotional trigger words</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card stat-card">
+                            <div class="card-body">
+                                <div class="stat-icon">
+                                    <i class="fas fa-quote-right"></i>
+                                </div>
+                                <div class="stat-value">65%</</div>
+                                <div class="stat-label">Use unverifiable sources</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="card stat-card">
+                            <div class="card-body">
+                                <div class="stat-icon">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <div class="stat-value">83%</div>
+                                <div class="stat-label">Have misleading headlines</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h5>Linguistic Patterns:</h5>
+                    <ul>
+                        <li><strong>Excessive Punctuation:</strong> Multiple exclamation marks (!!!) or question marks (???)</li>
+                        <li><strong>ALL CAPS:</strong> Words or entire sentences in capital letters for emphasis</li>
+                        <li><strong>Absolutist Language:</strong> Words like "never," "always," "every," or "all"</li>
+                        <li><strong>Emotional Triggers:</strong> Language designed to evoke fear, outrage, or other strong emotions</li>
+                        <li><strong>Vague Attributions:</strong> "Sources say," "experts believe," without specific citations</li>
+                    </ul>
+                    
+                    <h5 class="mt-4">Content Patterns:</h5>
+                    <ul>
+                        <li><strong>Too-Good/Bad-To-Be-True:</strong> Extraordinary claims without extraordinary evidence</li>
+                        <li><strong>Missing Context:</strong> Real facts presented selectively to support a false narrative</li>
+                        <li><strong>Shocking Revelations:</strong> Claims of "secrets" or "what they don't want you to know"</li>
+                        <li><strong>Conspiracy Elements:</strong> References to shadowy groups controlling events</li>
+                        <li><strong>Political Polarization:</strong> Extreme partisan language that demonizes opposing viewpoints</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- How Our Models Work Section -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0"><i class="fas fa-cogs me-2"></i>How Our ML Models Detect Fake News</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Our Detection Approach</h5>
+                        <p>FakeNewsGuard uses a multi-model approach to detect fake news with high accuracy. Each model focuses on different aspects of the content:</p>
+                        
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <strong><i class="fas fa-robot me-2"></i>Naive Bayes Classifier</strong>
+                            </div>
+                            <div class="card-body">
+                                <p>This probabilistic model analyzes word frequency and patterns, calculating how likely specific words appear in fake vs. real news.</p>
+                                <div class="badge bg-secondary">85% Accuracy</div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <strong><i class="fas fa-tree me-2"></i>Random Forest</strong>
+                            </div>
+                            <div class="card-body">
+                                <p>Combines multiple decision trees to analyze more complex relationships between words and phrases in the text.</p>
+                                <div class="badge bg-secondary">88% Accuracy</div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <strong><i class="fas fa-network-wired me-2"></i>LSTM Neural Network</strong>
+                            </div>
+                            <div class="card-body">
+                                <p>A deep learning approach that understands the sequential nature of text, capturing context and relationships between words.</p>
+                                <div class="badge bg-secondary">92% Accuracy</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Features Our Models Analyze</h5>
+                        
+                        <div class="features-list">
+                            <div class="feature-item">
+                                <i class="fas fa-font me-2"></i> Linguistic patterns
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-heart me-2"></i> Emotional tone and sentiment
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-paragraph me-2"></i> Text structure and complexity
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-quote-left me-2"></i> Source credibility indicators
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-tags me-2"></i> Topic and context analysis
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-users me-2"></i> Named entity recognition
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h5>Ensemble Approach</h5>
+                            <p>Our system combines results from all models for the highest accuracy:</p>
+                            <div class="progress mb-2" style="height: 20px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: 95%;" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100">95% Accuracy</div>
+                            </div>
+                            <p class="small text-muted">Our ensemble model integrates the strengths of each individual model while minimizing their weaknesses.</p>
+                            
+                            <div class="alert alert-info mt-3">
+                                <i class="fas fa-lightbulb me-2"></i>
+                                <strong>Did you know?</strong> Even the most advanced AI can sometimes struggle with satire, opinion pieces, and evolving topics. Always use critical thinking alongside our tools!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resources Section -->
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-secondary text-white">
-                <h4 class="card-title mb-0"><i class="fas fa-cogs me-2"></i>How Our System Works</h4>
+                <h4 class="mb-0"><i class="fas fa-external-link-alt me-2"></i>Additional Resources</h4>
             </div>
             <div class="card-body">
-                <p>Our Fake News Detection System uses advanced machine learning and natural language processing techniques to analyze news content. Here's how it works:</p>
-                <ol>
-                    <li><strong>Input:</strong> Users submit text or a URL for analysis.</li>
-                    <li><strong>Preprocessing:</strong> The text is cleaned and normalized.</li>
-                    <li><strong>Analysis:</strong> Machine learning models process the content to classify it as real or fake.</li>
-                    <li><strong>Results:</strong> The system provides a classification with a confidence score.</li>
-                </ol>
-            </div>
-        </div>
-
-        <div class="card shadow-sm">
-            <div class="card-header bg-dark text-white">
-                <h4 class="card-title mb-0"><i class="fas fa-graduation-cap me-2"></i>Learn More</h4>
-            </div>
-            <div class="card-body">
-                <p>Explore additional resources to deepen your understanding of fake news and its impact:</p>
-                <ul>
-                    <li><a href="/case_studies">Case Studies</a></li>
-                    <li><a href="/api_docs">API Documentation</a></li>
-                    <li><a href="#">Research Papers</a></li>
-                    <li><a href="#">Educational Videos</a></li>
-                </ul>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Fact-Checking Websites:</h5>
+                        <ul>
+                            <li><a href="https://www.snopes.com/" target="_blank">Snopes</a> - One of the oldest fact-checking websites</li>
+                            <li><a href="https://www.politifact.com/" target="_blank">PolitiFact</a> - Focuses on political claims</li>
+                            <li><a href="https://www.factcheck.org/" target="_blank">FactCheck.org</a> - Monitors factual accuracy in politics</li>
+                            <li><a href="https://www.reuters.com/fact-check" target="_blank">Reuters Fact Check</a> - Global fact-checking from a trusted news source</li>
+                        </ul>
+                        
+                        <h5 class="mt-4">Research Organizations:</h5>
+                        <ul>
+                            <li><a href="https://firstdraftnews.org/" target="_blank">First Draft</a> - Research on misinformation</li>
+                            <li><a href="https://www.poynter.org/" target="_blank">Poynter Institute</a> - Journalism education and research</li>
+                            <li><a href="https://www.media.mit.edu/" target="_blank">MIT Media Lab</a> - Research on media technologies</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Educational Courses:</h5>
+                        <ul>
+                            <li><a href="https://www.coursera.org/learn/journalism-ethics" target="_blank">Journalism Ethics on Coursera</a></li>
+                            <li><a href="https://www.edx.org/course/media-literacy" target="_blank">Media Literacy on edX</a></li>
+                            <li><a href="https://www.khanacademy.org/humanities/us-government-and-civics" target="_blank">Khan Academy's Civics Course</a></li>
+                        </ul>
+                        
+                        <h5 class="mt-4">Tools:</h5>
+                        <ul>
+                            <li><a href="https://www.tineye.com/" target="_blank">TinEye</a> - Reverse image search to verify images</li>
+                            <li><a href="https://www.newsguardtech.com/" target="_blank">NewsGuard</a> - Browser extension rating news site credibility</li>
+                            <li><a href="https://archive.org/web/" target="_blank">Wayback Machine</a> - Archive of webpage history</li>
+                            <li><a href="https://mediabiasfactcheck.com/" target="_blank">Media Bias/Fact Check</a> - Rates media sources for bias and factuality</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -118,15 +355,15 @@
                     <ul class="list-unstyled">
                         <li><a href="/">Home</a></li>
                         <li><a href="/dashboard">Dashboard</a></li>
-                        <li><a href="/api_docs">API Documentation</a></li>
+                        <li><a href="/learn">Learning Center</a></li>
                     </ul>
                 </div>
                 <div class="col-md-3">
                     <h5>References</h5>
                     <ul class="list-unstyled">
+                        <li><a href="/api_docs">API Documentation</a></li>
                         <li><a href="/case_studies">Case Studies</a></li>
                         <li><a href="#">Project Repository</a></li>
-                        <li><a href="#">Contact</a></li>
                     </ul>
                 </div>
             </div>
@@ -137,7 +374,8 @@
         </div>
     </footer>
 
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
-``` 

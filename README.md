@@ -70,6 +70,11 @@ A sophisticated web application built to detect and analyze fake news using mach
    ```bash
    python create_mock_lstm.py
    ```
+7. need to install tensor flow and newspaper3k
+   ```bash
+   pip install tensorflow
+   pip install newspaper3k
+   ```
 
 ## 💻 Usage
 

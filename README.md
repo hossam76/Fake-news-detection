@@ -51,7 +51,8 @@ A sophisticated web application built to detect and analyze fake news using mach
 
 3. Install the required packages:
    ```bash
-   pip install -r requirements.txt #if need to upgrade pip-- python -m pip install --upgrade pip
+   pip install -r requirements.txt
+   #if need to upgrade pip-- python -m pip install --upgrade pip
 
    ```
 

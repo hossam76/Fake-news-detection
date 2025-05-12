@@ -7,6 +7,7 @@ import pandas as pd
 import json
 import uuid
 import datetime
+import math  # Add math module import
 from collections import Counter
 import requests
 from bs4 import BeautifulSoup
@@ -76,6 +77,9 @@ except ImportError:
 # Initialize Flask app
 app = Flask(__name__, static_folder='static')
 app.secret_key = os.urandom(24)  # For session management
+
+# Add Jinja utility functions
+app.jinja_env.globals.update(min=min, max=max)
 
 # Add caching
 from flask_caching import Cache
@@ -171,26 +175,71 @@ def preprocess_text(text):
 
 # Helper function for text analysis
 def analyze_text(text):
-    """Perform detailed analysis on the text"""
+    """Perform comprehensive detailed analysis on the text"""
     analysis = {}
     
     # Basic stats
     analysis['word_count'] = len(text.split())
     analysis['sentence_count'] = len(sent_tokenize(text))
     analysis['avg_word_length'] = sum(len(word) for word in text.split()) / max(1, len(text.split()))
+    analysis['character_count'] = len(text)
+    analysis['paragraph_count'] = len([p for p in text.split('\n\n') if p.strip()])
+    
+    # Calculate reading metrics
+    words = text.split()
+    syllable_count = 0
+    complex_word_count = 0
+    
+    for word in words:
+        syllables = count_syllables(word)
+        syllable_count += syllables
+        if syllables >= 3:
+            complex_word_count += 1
+    
+    # Readability metrics
+    if len(words) > 0 and len(sent_tokenize(text)) > 0:
+        flesch_reading_ease = calculate_flesch_reading_ease(text)
+        flesch_kincaid_grade = calculate_flesch_kincaid_grade(text)
+        complex_word_percentage = (complex_word_count / max(1, len(words))) * 100
+        
+        analysis['readability'] = {
+            'flesch_reading_ease': flesch_reading_ease,
+            'flesch_kincaid_grade': flesch_kincaid_grade,
+            'complex_word_percentage': complex_word_percentage,
+            'avg_syllables_per_word': syllable_count / max(1, len(words)),
+            'avg_sentence_length': len(words) / max(1, len(sent_tokenize(text))),
+            # Add bounded values for safe template use
+            'flesch_reading_ease_bounded': min(100, max(0, flesch_reading_ease))
+        }
     
     # Sentiment analysis using TextBlob
     blob = TextBlob(text)
     analysis['sentiment'] = {
         'polarity': blob.sentiment.polarity,
-        'subjectivity': blob.sentiment.subjectivity
+        'subjectivity': blob.sentiment.subjectivity,
+        'assessment': get_sentiment_assessment(blob.sentiment.polarity, blob.sentiment.subjectivity)
     }
     
     # Extract top words (excluding stopwords)
     words = [word.lower() for word in word_tokenize(text) 
              if word.isalpha() and word.lower() not in stop_words]
     word_freq = Counter(words)
-    analysis['top_words'] = dict(word_freq.most_common(10))
+    analysis['top_words'] = dict(word_freq.most_common(15))
+    
+    # Extract word categories
+    emotional_words = [w for w in words if is_emotional_word(w)]
+    factual_words = [w for w in words if is_factual_indicator(w)]
+    uncertain_words = [w for w in words if is_uncertainty_indicator(w)]
+    
+    analysis['language_indicators'] = {
+        'emotional_word_count': len(emotional_words),
+        'emotional_words': emotional_words[:10],
+        'factual_indicators': factual_words[:10],
+        'uncertainty_indicators': uncertain_words[:10],
+        'emotional_ratio': len(emotional_words) / max(1, len(words)),
+        'factual_ratio': len(factual_words) / max(1, len(words)),
+        'uncertainty_ratio': len(uncertain_words) / max(1, len(words))
+    }
     
     # More advanced NLP with spaCy if available
     if HAS_SPACY:
@@ -198,7 +247,9 @@ def analyze_text(text):
         
         # Named Entity Recognition
         entities = [(ent.text, ent.label_) for ent in doc.ents]
+        entity_types = Counter([ent.label_ for ent in doc.ents])
         analysis['named_entities'] = entities
+        analysis['entity_counts'] = dict(entity_types)
         
         # Part-of-speech tagging stats
         pos_counts = Counter([token.pos_ for token in doc])
@@ -207,8 +258,174 @@ def analyze_text(text):
         # Extract key phrases (noun chunks)
         key_phrases = [chunk.text for chunk in doc.noun_chunks]
         analysis['key_phrases'] = key_phrases[:10] if len(key_phrases) > 10 else key_phrases
+        
+        # Dependency parsing statistics
+        dep_counts = Counter([token.dep_ for token in doc])
+        analysis['dependency_counts'] = dict(dep_counts)
+        
+        # Extract quoted text
+        quoted_texts = extract_quoted_text(text)
+        analysis['quoted_text'] = quoted_texts
+        analysis['quote_count'] = len(quoted_texts)
+        
+        # Text classification analysis
+        analysis['subject_domains'] = classify_text_domain(text)
+    
+    # Content diversity metrics
+    analysis['content_diversity'] = {
+        'type_token_ratio': len(set(words)) / max(1, len(words)),
+        'hapax_legomena': len([w for w in set(words) if words.count(w) == 1]),
+        'vocabulary_richness': len(set(words)) / math.sqrt(max(1, len(words)))
+    }
     
     return analysis
+
+# Helper functions for enhanced text analysis
+def count_syllables(word):
+    """Count syllables in a word using a simple heuristic"""
+    word = word.lower()
+    if len(word) <= 3:
+        return 1
+    # Remove trailing e
+    if word.endswith('e'):
+        word = word[:-1]
+    # Count vowel groups
+    count = 0
+    vowels = "aeiouy"
+    prev_is_vowel = False
+    for char in word:
+        is_vowel = char in vowels
+        if is_vowel and not prev_is_vowel:
+            count += 1
+        prev_is_vowel = is_vowel
+    return max(1, count)
+
+def calculate_flesch_reading_ease(text):
+    """Calculate Flesch Reading Ease score"""
+    sentences = sent_tokenize(text)
+    words = text.split()
+    sentence_count = len(sentences)
+    word_count = len(words)
+    syllable_count = sum(count_syllables(word) for word in words)
+    
+    if sentence_count == 0 or word_count == 0:
+        return 0
+    
+    return 206.835 - (1.015 * (word_count / sentence_count)) - (84.6 * (syllable_count / word_count))
+
+def calculate_flesch_kincaid_grade(text):
+    """Calculate Flesch-Kincaid Grade Level"""
+    sentences = sent_tokenize(text)
+    words = text.split()
+    sentence_count = len(sentences)
+    word_count = len(words)
+    syllable_count = sum(count_syllables(word) for word in words)
+    
+    if sentence_count == 0 or word_count == 0:
+        return 0
+    
+    return (0.39 * (word_count / sentence_count)) + (11.8 * (syllable_count / word_count)) - 15.59
+
+def get_sentiment_assessment(polarity, subjectivity):
+    """Generate a human-readable assessment of sentiment scores"""
+    # Polarity assessment
+    if polarity >= 0.5:
+        polarity_assessment = "very positive"
+    elif polarity >= 0.1:
+        polarity_assessment = "somewhat positive"
+    elif polarity <= -0.5:
+        polarity_assessment = "very negative"
+    elif polarity <= -0.1:
+        polarity_assessment = "somewhat negative"
+    else:
+        polarity_assessment = "neutral"
+    
+    # Subjectivity assessment
+    if subjectivity >= 0.75:
+        subjectivity_assessment = "highly subjective"
+    elif subjectivity >= 0.5:
+        subjectivity_assessment = "somewhat subjective"
+    elif subjectivity <= 0.25:
+        subjectivity_assessment = "highly objective"
+    else:
+        subjectivity_assessment = "somewhat objective"
+    
+    return f"This text appears {polarity_assessment} in tone and {subjectivity_assessment} in nature."
+
+def is_emotional_word(word):
+    """Check if a word has emotional content - simplified version"""
+    emotional_word_list = {
+        'amazing', 'terrible', 'awesome', 'horrible', 'excellent', 'painful', 'wonderful', 
+        'tragic', 'beautiful', 'ugly', 'fantastic', 'devastating', 'incredible', 'awful', 
+        'extraordinary', 'terrifying', 'perfect', 'disastrous', 'horrific', 'stunning',
+        'shocking', 'outrageous', 'scandal', 'triumph', 'disaster', 'miracle', 'tragedy',
+        'catastrophe', 'breakthrough'
+    }
+    return word.lower() in emotional_word_list
+
+def is_factual_indicator(word):
+    """Check if word indicates factual content - simplified version"""
+    factual_indicators = {
+        'study', 'research', 'survey', 'report', 'analysis', 'data', 'evidence', 'found',
+        'published', 'according', 'confirmed', 'official', 'statistics', 'document',
+        'verified', 'measured', 'established', 'demonstrated', 'proven', 'recorded'
+    }
+    return word.lower() in factual_indicators
+
+def is_uncertainty_indicator(word):
+    """Check if word indicates uncertainty - simplified version"""
+    uncertainty_indicators = {
+        'maybe', 'perhaps', 'possibly', 'might', 'could', 'allegedly', 'reportedly',
+        'apparently', 'seemingly', 'unclear', 'unconfirmed', 'suspected', 'rumored',
+        'likely', 'unlikely', 'probability', 'chance', 'speculate', 'guess', 'estimate'
+    }
+    return word.lower() in uncertainty_indicators
+
+def extract_quoted_text(text):
+    """Extract text within quotation marks"""
+    quoted_texts = []
+    pattern = r'["\'](.*?)["\']'
+    matches = re.finditer(pattern, text)
+    
+    for match in matches:
+        quoted_text = match.group(1)
+        if len(quoted_text) > 3:  # Filter out very short quotes
+            quoted_texts.append(quoted_text)
+    
+    return quoted_texts
+
+def classify_text_domain(text):
+    """Classify text into subject domains using keyword approach"""
+    domains = {
+        'politics': ['government', 'election', 'political', 'president', 'vote', 'party', 'policy',
+                    'senate', 'congress', 'law', 'democracy', 'campaign', 'candidate'],
+        'health': ['health', 'disease', 'medical', 'doctor', 'patient', 'hospital', 'treatment',
+                  'vaccine', 'medicine', 'cure', 'symptom', 'virus', 'pandemic', 'covid'],
+        'science': ['science', 'research', 'study', 'scientist', 'experiment', 'discovery',
+                   'technology', 'innovation', 'data', 'theory', 'evidence', 'laboratory'],
+        'finance': ['finance', 'money', 'market', 'stock', 'investment', 'economic', 'economy',
+                   'bank', 'dollar', 'trade', 'business', 'currency', 'inflation', 'recession'],
+        'entertainment': ['movie', 'film', 'celebrity', 'actor', 'music', 'entertainment',
+                         'hollywood', 'tv', 'television', 'star', 'famous', 'award', 'show'],
+        'sports': ['sport', 'game', 'team', 'player', 'championship', 'tournament', 'win',
+                  'score', 'match', 'athlete', 'coach', 'season', 'football', 'basketball'],
+        'technology': ['tech', 'computer', 'internet', 'software', 'digital', 'app',
+                     'device', 'cyber', 'online', 'mobile', 'web', 'smart', 'code', 'ai']
+    }
+    
+    text_lower = text.lower()
+    domain_scores = {}
+    
+    for domain, keywords in domains.items():
+        count = sum(text_lower.count(keyword) for keyword in keywords)
+        if count > 0:
+            domain_scores[domain] = count
+    
+    # Return sorted domains by score
+    if domain_scores:
+        return sorted(domain_scores.items(), key=lambda x: x[1], reverse=True)
+    
+    return [('general', 1)]  # Default if no specific domain found
 
 # Generate word cloud image
 def generate_wordcloud(text):
@@ -238,57 +455,133 @@ def generate_wordcloud(text):
     img_base64 = base64.b64encode(img.getvalue()).decode('utf-8')
     return f"data:image/png;base64,{img_base64}"
 
-# Function to check website credibility
+# Enhanced source credibility checking
 def check_website_credibility(url):
+    """More detailed credibility analysis of a news source"""
     try:
-        # Parse URL to get domain
-        domain = urlparse(url).netloc
+        # Parse URL
+        parsed_url = urlparse(url)
+        domain = parsed_url.netloc.lower()
         
-        # Mock credibility database (in a real app, use an actual database or API)
-        credible_domains = ['bbc.com', 'nytimes.com', 'reuters.com', 'apnews.com', 'bloomberg.com']
-        questionable_domains = ['infowars.com', 'naturalcurenews.com', 'dailybuzzlive.com']
+        # Reference databases of news sources (simplified for demonstration)
+        reliable_domains = {
+            'reuters.com': {'score': 0.95, 'category': 'International News Agency', 'bias': 'minimal'},
+            'apnews.com': {'score': 0.95, 'category': 'International News Agency', 'bias': 'minimal'},
+            'bloomberg.com': {'score': 0.90, 'category': 'Financial News', 'bias': 'minimal'},
+            'bbc.com': {'score': 0.90, 'category': 'International Broadcaster', 'bias': 'minimal-center'},
+            'nytimes.com': {'score': 0.88, 'category': 'Newspaper', 'bias': 'center-left'},
+            'wsj.com': {'score': 0.87, 'category': 'Newspaper', 'bias': 'center-right'},
+            'economist.com': {'score': 0.90, 'category': 'Magazine', 'bias': 'center'}
+        }
         
-        if domain in credible_domains:
-            return {'score': 0.9, 'status': 'Credible', 'notes': 'Known reliable source'}
+        questionable_domains = {
+            'infowars.com': {'score': 0.15, 'category': 'Conspiracy', 'bias': 'extreme-right'},
+            'naturalcurenews.com': {'score': 0.20, 'category': 'Pseudoscience', 'bias': 'questionable'},
+            'dailybuzzlive.com': {'score': 0.25, 'category': 'Satire/Fake', 'bias': 'questionable'}
+        }
+        
+        domain_info = {}
+        credibility_factors = []
+        
+        # Check if domain is in our reference lists
+        if domain in reliable_domains:
+            domain_info = reliable_domains[domain]
+            credibility_factors.append(f"Source is recognized as reliable: {domain_info['category']}")
+            credibility_factors.append(f"Editorial stance: {domain_info['bias']}")
         elif domain in questionable_domains:
-            return {'score': 0.2, 'status': 'Questionable', 'notes': 'Known for misinformation'}
+            domain_info = questionable_domains[domain]
+            credibility_factors.append(f"Source is flagged as potentially unreliable: {domain_info['category']}")
+            credibility_factors.append(f"Editorial stance: {domain_info['bias']}")
         
-        # Check if website has privacy policy, about page, etc.
+        # Default score if not in our databases
+        score = domain_info.get('score', 0.5)
+        
+        # Try to analyze website content
         try:
             response = requests.get(f"https://{domain}", timeout=3)
             soup = BeautifulSoup(response.text, 'html.parser')
             
+            # Check for about page
             has_about = bool(soup.find('a', text=re.compile(r'about', re.I)) or 
                            'about' in response.text.lower())
+            if has_about:
+                score += 0.05
+                credibility_factors.append("Has about page (+)")
+            else:
+                credibility_factors.append("No about page (-)")
+            
+            # Check for contact information
             has_contact = bool(soup.find('a', text=re.compile(r'contact', re.I)) or 
                              'contact' in response.text.lower())
-            
-            score = 0.5
-            notes = []
-            
-            if has_about:
-                score += 0.1
-                notes.append('Has about page')
             if has_contact:
-                score += 0.1
-                notes.append('Has contact information')
-                
-            status = 'Unknown'
-            if score > 0.7:
-                status = 'Likely Credible'
-            elif score < 0.4:
-                status = 'Potentially Questionable'
-                
-            return {
-                'score': score,
-                'status': status,
-                'notes': ', '.join(notes) if notes else 'Limited information available'
-            }
-        except:
-            return {'score': 0.5, 'status': 'Unknown', 'notes': 'Could not analyze website'}
+                score += 0.05
+                credibility_factors.append("Has contact information (+)")
+            else:
+                credibility_factors.append("No contact information (-)")
             
-    except:
-        return {'score': 0.5, 'status': 'Unknown', 'notes': 'Invalid URL format'}
+            # Check for privacy policy
+            has_privacy = bool(soup.find('a', text=re.compile(r'privacy', re.I)) or 
+                             'privacy policy' in response.text.lower())
+            if has_privacy:
+                score += 0.05
+                credibility_factors.append("Has privacy policy (+)")
+            else:
+                credibility_factors.append("No privacy policy (-)")
+                
+            # Check for author attribution
+            has_authors = bool(soup.find('author') or soup.find(class_=re.compile(r'author', re.I)))
+            if has_authors:
+                score += 0.1
+                credibility_factors.append("Shows author attribution (+)")
+            else:
+                credibility_factors.append("No clear author attribution (-)")
+            
+            # Domain age heuristic (TLD)
+            tld = domain.split('.')[-1]
+            if tld in ['com', 'org', 'edu', 'gov', 'net']:
+                score += 0.03
+                credibility_factors.append(f"Standard TLD: .{tld} (+)")
+            elif tld in ['co', 'info', 'biz', 'xyz']:
+                score -= 0.02
+                credibility_factors.append(f"Less common TLD: .{tld} (-)")
+                
+        except:
+            credibility_factors.append("Could not analyze website structure")
+        
+        # Cap score between 0 and 1
+        score = max(0.0, min(1.0, score))
+        
+        # Determine status based on score
+        if score >= 0.8:
+            status = 'Highly Credible Source'
+        elif score >= 0.6:
+            status = 'Likely Credible Source'
+        elif score >= 0.4:
+            status = 'Uncertain Credibility'
+        elif score >= 0.2:
+            status = 'Likely Questionable Source'
+        else:
+            status = 'Known Problematic Source'
+        
+        # Return comprehensive analysis
+        return {
+            'score': score,
+            'status': status,
+            'domain': domain,
+            'category': domain_info.get('category', 'Unknown'),
+            'bias': domain_info.get('bias', 'Unknown'),
+            'factors': credibility_factors,
+            'notes': 'Analysis based on source reputation and website characteristics.'
+        }
+            
+    except Exception as e:
+        return {
+            'score': 0.5,
+            'status': 'Unknown',
+            'domain': urlparse(url).netloc if url else 'Invalid URL',
+            'factors': [f"Analysis error: {str(e)}"],
+            'notes': 'Could not complete analysis due to technical issues.'
+        }
 
 # Function to extract article from URL
 def extract_article(url):
@@ -410,7 +703,7 @@ def explain_prediction(text, model_name='naive_bayes'):
 def home():
     analysis_id = session.get('last_analysis_id')
     saved_analysis = None
-    if analysis_id:
+    if (analysis_id):
         try:
             with open(f'analysis_data/{analysis_id}.json', 'r') as f:
                 saved_analysis = json.load(f)
@@ -504,7 +797,7 @@ def predict_form():
         
         if url and not news_text and HAS_NEWSPAPER:
             article_data = extract_article(url)
-            if article_data['success']:
+            if (article_data['success']):
                 news_text = article_data['text']
             else:
                 return render_template('index.html', error=f"Could not extract article: {article_data.get('error', 'Unknown error')}")
